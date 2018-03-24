@@ -1,0 +1,60 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xsi:schemaLocation="
+        http://www.springframework.org/schema/beans     
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/mvc 
+        http://www.springframework.org/schema/mvc/spring-mvc.xsd
+        http://www.springframework.org/schema/context 
+        http://www.springframework.org/schema/context/spring-context.xsd ">
+ 
+	<context:component-scan base-package="com.jacliu.test.web" />
+	<mvc:annotation-driven />
+ 
+	<bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<property name="viewClass" value="org.springframework.web.servlet.view.JstlView"/>
+		<property name="prefix" value="/WEB-INF/views/jsp/" />
+		<property name="suffix" value=".jsp" />
+	</bean>
+ 
+
+    <!-- 自定义的有点问题 -->
+    <mvc:resources mapping="doc.html" location="classpath:/META-INF/resources/"/>
+    
+    <mvc:resources mapping="swagger-ui.html" location="classpath:/META-INF/resources/"/>
+    <mvc:resources mapping="/webjars/**" location="classpath:/META-INF/resources/webjars/"/>
+    <mvc:resources mapping="/resources/**" location="/resources/" />
+    <mvc:resources mapping="/v2/api-docs" location="/v2/api-docs"/> 
+       
+    <bean name="applicationSwaggerConfig" class="com.jacliu.test.swagger2.SwaggerConfig"/>
+	
+	<context:component-scan base-package="com.jacliu.test" use-default-filters="false">  
+      <context:include-filter type="annotation" expression="org.springframework.stereotype.Controller"/>  
+    </context:component-scan>
+    
+<!-- 	<mvc:annotation-driven validator="validator"/>  
+    <bean id="validator" class="org.springframework.validation.beanvalidation.LocalValidatorFactoryBean">  
+        <property name="providerClass" value="org.hibernate.validator.HibernateValidator" />  
+        <property name="validationMessageSource" ref="messageSource" />  
+    </bean>  
+    <bean id="messageSource" class="org.springframework.context.support.ReloadableResourceBundleMessageSource">  
+        <property name="basenames">  
+            <list>  
+                <value>classpath:messages</value>  
+                <value>classpath:org/hibernate/validator/ValidationMessages</value>  
+            </list>  
+        </property>  
+        <property name="useCodeAsDefaultMessage" value="false" />  
+        <property name="defaultEncoding" value="UTF-8" />  
+        <property name="cacheSeconds" value="60" />  
+    </bean>   -->
+	
+	<!-- 
+	<mvc:exclude-mapping path="/swagger*/**"></mvc:exclude-mapping>
+<mvc:exclude-mapping path="/v2/**"></mvc:exclude-mapping>
+<mvc:exclude-mapping path="/webjars/**"></mvc:exclude-mapping>
+  -->
+	
+</beans>

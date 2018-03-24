@@ -1,0 +1,27 @@
+搭建gradle项目并持续继承到gitLab上,如下：
+1、安装jdk及gradle,设置好环境变量
+2、STS中安装buildship插件,建项目 
+3、安装vmware安装centos,设置好jdk tomcat gitlab git等
+4、gradle中写自动上传到linux开闭tomcat的脚本
+5、配置jenkins,完成监控及集成
+
+坑如下：
+tortoiseGit ssh权限设置时有坑
+与swagger整合时自定义ui误导
+centos连不上外网：重装ifup eth0
+radle-ssh插件执行不了.sh文件，更新插件版本
+jenkins新装时连不了网,先安装Skip Certificate Check plugin插件,其后才能自动看到可使用的插件
+
+参考文档如下：
+http://blog.csdn.net/wqc19920906/article/details/52608460?locationNum=10&fps=1
+https://gradle-ssh-plugin.github.io/docs/
+https://www.cnblogs.com/reblue520/p/7130914.html
+
+jenkins离线暗转地址(安装Skip Certificate Check plugin后免进坑)
+https://updates.jenkins-ci.org/download/plugins/
+
+回思：
+1：接受一个新东西前期会有个一两天的迷惘期,急不来,急也没用
+2：环境(网络)允许的话,能直接看英文文档直接看,避免进国人三人成虎的坑
+3：能用stackoverflow的尽量用,同上
+4: 博客园 oschina csdn次之
