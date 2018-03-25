@@ -15,16 +15,18 @@ apply plugin: 'org.hidetake.ssh'
 // TODO http://blog.csdn.net/fly910905/article/details/79131755 实现静态文档的生成
 
 import org.apache.tools.ant.filters.ReplaceTokens
-
 group 'com.jacliu.test'
 version '1.0-SNAPSHOT'
-
 sourceCompatibility = 1.8
-
 ext{
     env = System.getProperty("env") ?: "dev"
+    realHost = System.getProperty("realHost") ?: '192.168.0.165'  
+    realUser = System.getProperty("realUser") ?:'root'  
+    realPassword = System.getProperty("realPassword") ?:'12345678' 
+    archiveName = System.getProperty("archiveName") ?:'spring4MvcAndSwaggerWithGradle'
+    toUploadDir = System.getProperty("toUploadDir") ?:'D:/deploy-softwares/' 
+   
 }
-
 tasks.withType(JavaCompile) {
 	options.encoding = "UTF-8"
 }
@@ -66,6 +68,10 @@ dependencies {
 	// https://mvnrepository.com/artifact/javax.el/javax.el-api
 	compile group: 'javax.el', name: 'javax.el-api', version: '3.0.0'
 	
+	// https://mvnrepository.com/artifact/javax.el/javax.el-api
+	compile group: 'javax.el', name: 'javax.el-api', version: '3.0.0'
+	
+	
 	// https://mvnrepository.com/artifact/org.hibernate.validator/hibernate-validator
 	compile group: 'org.hibernate.validator', name: 'hibernate-validator', version: '6.0.8.Final'
 }
@@ -101,16 +107,62 @@ war{
 ssh.settings {  
   knownHosts = allowAnyHosts  
 }  
+
 remotes {  
-  deployServer {  
-    role 'masterNode'
-    host = '192.168.0.157'  
-    user = 'root'  
-    password = '12345678'  
-  }  
+  	deployServer {  
+	    role 'masterNode'
+	    host = realHost  
+	    user = realUser  
+	    password = realPassword  
+  }
 }  
 
-task uploadInstallJdk() << {
+def toUploadFile = {String suf ->
+	toUploadDir + suf
+}
+
+task installTools() << {
+	ssh.run {
+		    session(remotes.deployServer) { 
+			executeScript '''
+					#!/bin/sh  
+		            yum -y install wget
+		            yum -y install lrzsz
+		            yum -y install make ncurses-devel gcc gcc-c++ unixODBC unixODBC-devel openssl openssl-devel
+	                yum -y install tcl
+	                yum -y install pcre*  
+					yum -y install openssl*
+	           '''  
+	        }
+       }
+}
+
+task installJdk(dependsOn: installTools) << {
+	ssh.run {  
+	    session(remotes.deployServer) { 
+	         executeScript '''
+      					#!/bin/sh  
+                        rm -rf /home/jdkHome
+                        mkdir /home/jdkHome
+                    '''  
+		      put from: toUploadDir+"jdk-8u161-linux-x64.tar.gz", into: "/home/jdkHome"
+		      executeScript '''
+		      			#!/bin/sh
+		      			tar -zxvf /home/jdkHome/jdk-8u161-linux-x64.tar.gz -C /home/jdkHome/
+		      			mv /home/jdkHome/jdk1.8.0_161 /home/jdkHome/jdk8
+		      			rm -rf /home/jdkHome/jdk-8u161-linux-x64.tar.gz
+		      			mv /etc/profile /etc/profile_back
+		      		'''
+		     put from: toUploadDir+"profile", into: "/etc/profile"
+		     executeScript '''
+		      			#!/bin/sh
+		     			source /etc/profile
+		     			java -version
+		     		'''
+	    }
+	}
+}
+task installTomcat(dependsOn: installJdk) << {
 	ssh.run {  
 	    session(remotes.deployServer) { 
 	         executeScript '''
@@ -118,55 +170,164 @@ task uploadInstallJdk() << {
                         rm -rf /home/tomcatHome
                         mkdir /home/tomcatHome
                     '''  
-		      put from: "D:/downLoad/apache-tomcat-8.5.29.tar.gz", into: "/home/tomcatHome"
+		      put from: toUploadFile("apache-tomcat-8.5.29.tar.gz"), into: "/home/tomcatHome"
 		      executeScript '''
 		      			#!/bin/sh
+		      			//wget -P /home/tomcatHome http://mirrors.shu.edu.cn/apache/tomcat/tomcat-8/v8.5.29/bin/apache-tomcat-8.5.29.tar.gz
 		      			tar -zxvf /home/tomcatHome/apache-tomcat-8.5.29.tar.gz -C /home/tomcatHome/
 		      			mv /home/tomcatHome/apache-tomcat-8.5.29 /home/tomcatHome/tomcat8
 		      			rm -rf /home/tomcatHome/apache-tomcat-8.5.29.tar.gz
+		      			mv /home/tomcatHome/tomcat8/conf/server.xml /home/tomcatHome/tomcat8/conf/server.xml_back
+		      			mv /home/tomcatHome/tomcat8/bin/startup.sh /home/tomcatHome/tomcat8/bin/startup.sh_back
+		      			mv /home/tomcatHome/tomcat8/bin/setclasspath.sh /home/tomcatHome/tomcat8/bin/setclasspath.sh_back
+		      		'''
+		     put from: toUploadDir+"server.xml", into: "/home/tomcatHome/tomcat8/conf/server.xml"
+		     put from: toUploadDir+"startup.sh", into: "/home/tomcatHome/tomcat8/bin/startup.sh"
+		     put from: toUploadDir+"setclasspath.sh", into: "/home/tomcatHome/tomcat8/bin/setclasspath.sh"
+		     executeScript '''
+		      			#!/bin/sh
+		      			chmod 777 /home/tomcatHome/tomcat8/bin/startup.sh /home/tomcatHome/tomcat8/bin/shutdown.sh
 		      		'''
 	    }
 	}
 }
-
-task uploadInstallTomcat() << {
+task installJenkins(dependsOn: installTomcat) << {
 	ssh.run {  
 	    session(remotes.deployServer) { 
 	         executeScript '''
       					#!/bin/sh  
-                        rm -rf /home/tomcatHome
-                        mkdir /home/tomcatHome
+                        rm -rf /home/jenkinsHome
+                        mkdir /home/jenkinsHome
+                        # // wget -P /home/jenkinsHome http://mirrors.jenkins.io/war-stable/latest/jenkins.war
                     '''  
-		      put from: "D:/downLoad/apache-tomcat-8.5.29.tar.gz", into: "/home/tomcatHome"
-		      executeScript '''
-		      			#!/bin/sh
-		      			tar -zxvf /home/tomcatHome/apache-tomcat-8.5.29.tar.gz -C /home/tomcatHome/
-		      			mv /home/tomcatHome/apache-tomcat-8.5.29 /home/tomcatHome/tomcat8
-		      			rm -rf /home/tomcatHome/apache-tomcat-8.5.29.tar.gz
-		      		'''
+            put from: toUploadFile("jenkins.war"), into: "/home/jenkinsHome"
+            executeScript '''
+      					#!/bin/sh  
+      					nohup /home/jdkHome/jdk8/bin/java -jar /home/jenkinsHome/jenkins.war --httpPort=9090 &
+      					sleep 5
+      					exit
+      				'''
+            //execute 'nohup java -jar /home/jenkinsHome/jenkins.war --httpPort=9090 & '
+	    }
+	}
+}
+// https://blog.csdn.net/mx472756841/article/details/50733886
+task installRabbitMq(dependsOn: installJenkins) << {
+	ssh.run {  
+		    session(remotes.deployServer) { 
+		         executeScript '''
+	      					#!/bin/sh
+	      					rm -rf /home/rabbitMqHome
+	                        mkdir /home/rabbitMqHome
+	      					wget -P /home/rabbitMqHome http://erlang.org/download/otp_src_20.3.tar.gz
+	      					wget -P /home/rabbitMqHome https://www.rabbitmq.com/releases/rabbitmq-server/v1.4.0/rabbitmq-server-1.4.0-1.noarch.rpm
+	      					cd /home/rabbitMqHome
+	      					tar -zxvf /home/rabbitMqHome/otp_src_20.3.tar.gz -C /home/rabbitMqHome/
+	      					mv /home/rabbitMqHome/otp_src_20.3.tar.gz 
+	      					mv /home/rabbitMqHome/otp_src_20.3 /home/rabbitMqHome/rbmq20
+	      					cd /home/rabbitMqHome/rbmq20
+	      					./configure
+	      					make && make install  
+	                    '''
+	             put from: toUploadDir+"profile", into: "/etc/profile"
+			     executeScript '''
+			      			#!/bin/sh
+				     			source /etc/profile
+				     			echo $ERL_HOME
+				     			rpm -i --nodeps /home/rabbitMqHome/rabbitmq-server-1.4.0-1.noarch.rpm
+				     			chkconfig rabbitmq-server on
+				     		'''
 	    }
 	}
 }
 
+// https://www.cnblogs.com/yinz/p/7065146.html
+task installRedis(dependsOn: installJenkins) << {
+	ssh.run {  
+		    session(remotes.deployServer) { 
+	        executeScript '''
+	  				#!/bin/sh
+	  				rm -rf /home/redisHome
+	                mkdir -p /home/redisHome
+	                mkdir -p /home/redisHome/redisInstall
+	                
+	  				wget -P /home/redisHome http://download.redis.io/releases/redis-4.0.8.tar.gz
+					tar -zxvf /home/redisHome/redis-4.0.8.tar.gz -C /home/redisHome/
+					rm -rf /home/redisHome/redis-4.0.8.tar.gz
+					cd /home/redisHome/redis-4.0.8
+				    make install PREFIX=/home/redisHome/redisInstall/ 
+	            '''
+	    }
+	}
+}
 
-task deploy() << {  
+task installNginx(dependsOn: installRedis) << {
+	ssh.run {  
+		    session(remotes.deployServer) { 
+	        executeScript '''
+	  				#!/bin/sh
+	  				rm -rf /home/nginxHome
+	                mkdir -p /home/nginxHome
+	                mkdir -p /home/nginxHome/nginxInstall
+					 
+	  				wget -P /home/nginxHome https://nginx.org/download/nginx-1.9.9.tar.gz
+					tar -zxvf /home/nginxHome/nginx-1.9.9.tar.gz -C /home/nginxHome/
+					rm -rf /home/nginxHome/nginx-1.9.9.tar.gz
+					cd /home/nginxHome/nginx-1.9.9
+					./configure --prefix=/home/nginxHome/nginxInstall
+				    make & make install
+					cd /home/nginxHome/nginxInstall
+				    ./nginx
+				    ps -ef | grep nginx
+	            '''
+	    }
+	}
+}
+task closeThefire(dependsOn: installNginx) << {
+	ssh.run {  
+	    session(remotes.deployServer) { 
+	         executeScript '''
+      					#!/bin/sh  
+                        iptables -A INPUT -p tcp --dport 80 -j ACCEPT
+                        service iptables stop
+                    '''  
+	    }
+	}
+}
+
+task initEnv(dependsOn: closeThefire)<<{
+	ssh.run {  
+	    session(remotes.deployServer) { 
+	         executeScript '''
+      					#!/bin/sh
+      					chmod 777 /home/tomcatHome/tomcat8/bin/startup.sh /home/tomcatHome/tomcat8/bin/shutdown.sh   
+  						ls /home/jdkHome/
+  						ls /home/jdkHome/jdk8/jre
+  						source /etc/profile
+  						cat /etc/profile
+  						echo $JAVA_HOME 
+  						echo $JRE_HOME
+                    '''  
+	    }
+	}
+	println "恭喜您 jdk tomcat8 rabbitmq redis nginx jenkins 初始化已完成，接下来请您完成各自的定自化!"
+}
+
+task deploy(dependsOn: war) << { 
   ssh.run {  
     session(remotes.deployServer) {  
         execute '/home/tomcatHome/tomcat8/bin/shutdown.sh'
-    	remove '/home/tomcatHome/tomcat8/webapps/spring4MvcAndSwaggerWithGradle','/home/tomcatHome/tomcat8/webapps/spring4MvcAndSwaggerWithGradle.war'
-		put from: buildDir.toString() + '/libs/spring4MvcAndSwaggerWithGradle.war', into: '/home/tomcatHome/tomcat8/webapps'
+    	remove '/home/tomcatHome/tomcat8/webapps/'+archiveName,'/home/tomcatHome/tomcat8/webapps/'+archiveName+'.war'
+		put from: buildDir.toString() + '/libs/'+archiveName+'.war', into: '/home/tomcatHome/tomcat8/webapps'
 		execute '/home/tomcatHome/tomcat8/bin/startup.sh'  
     }  
   }  
 }
-project.afterEvaluate{  
-  tasks.getByName("war"){  
-       it.doFirst{  
-       }  
-       
-       it.doLast{  
-       }  
-    }  
+
+
+def cmd = 'openBrowser.bat' + realHost
+task openBrowser(dependsOn: deploy) << {
+	def cmdResult = cmd.execute().text.trim()
 }
 
 gretty {
@@ -174,10 +335,6 @@ gretty {
 	managedClassReload = true
 	reloadOnConfigChange = true
     contextPath = '/'
-    
-    //recompileOnSourceChange = false
-    //reloadOnClassChange = false
-    //reloadOnLibChange = false
 }
 	
 // 扩展上传到maven的插件	

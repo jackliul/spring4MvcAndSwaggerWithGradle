@@ -1,0 +1,89 @@
+
+project.afterEvaluate{  
+  tasks.getByName("war"){  
+       it.doFirst{  
+       }  
+       
+       it.doLast{  
+       }  
+    }  
+}
+
+
+// yum方式 mysql安装
+// https://www.cnblogs.com/vurtne-lu/p/7683073.html
+// https://blog.csdn.net/logicr/article/details/79392471
+// /etc/yum.repos.d/mysql-community.repo
+task installMysql() << {
+	ssh.run {  
+	    session(remotes.deployServer) { 
+	         executeScript '''
+      					#!/bin/sh  
+      					rm -rf /home/mysqlHome
+                        mkdir /home/mysqlHome
+                        cd /home/mysqlHome 
+                        rpm -ivh http://repo.mysql.com/yum/mysql-5.5-community/el/6/x86_64/mysql-community-release-el6-5.noarch.rpm
+                        yum -y install mysql-community-client mysql-community-devel mysql-community-server php-mysql
+                        cp /etc/my.cnf /etc/my.cnf_back
+                    '''
+             put from: toUploadFile("my.ini"), into: '/etc/my.cnf'
+             executeScript '''
+      					#!/bin/sh  
+      					service mysqld start
+      					mysql --version
+                    '''
+	    }
+	}
+}
+
+// https://blog.csdn.net/mx472756841/article/details/50733886
+task installRedis() << {
+	ssh.run {  
+		    session(remotes.deployServer) { 
+	        executeScript '''
+	  				#!/bin/sh
+	  				rm -rf /home/redisHome
+	                mkdir -p /home/redisHome
+	                mkdir -p /home/redisInstall
+	                yum install gcc-c++
+	                yum install -y tcl
+	  				wget -P /home/redisHome http://download.redis.io/releases/redis-4.0.8.tar.gz
+					tar -zxvf /home/redisHome/redis-4.0.8.tar.gz -C /home/redisHome/
+					mv /home/redisHome/redis-4.0.8.tar.gz
+					cd redis-4.0.8
+				    make install PREFIX=/home/redisInstall/ 
+	            '''
+	    }
+	}
+}
+
+
+// https://blog.csdn.net/mx472756841/article/details/50733886
+task installRabbitMq() << {
+	ssh.run {  
+		    session(remotes.deployServer) { 
+		         executeScript '''
+	      					#!/bin/sh
+	      					yum -y install make ncurses-devel gcc gcc-c++ unixODBC unixODBC-devel openssl openssl-devel 
+	      					rm -rf /home/rabbitMqlHome
+	                        mkdir /home/rabbitMqHome
+	      					wget -P /home/rabbitMqHome http://erlang.org/download/otp_src_20.3.tar.gz
+	      					wget -P /home/rabbitMqHome https://www.rabbitmq.com/releases/rabbitmq-server/v1.4.0/rabbitmq-server-1.4.0-1.noarch.rpm
+	      					tar -zxvf /home/rabbitMqHome/otp_src_20.3.tar.gz -C /home/rabbitMqlHome/
+	      					mv /home/rabbitMqHome/otp_src_20.3.tar.gz 
+	      					mv /home/rabbitMqHome/otp_src_20.3 /home/rabbitMqHome/rbmq20
+	      					cd /home/rabbitMqHome/rbmq20
+	      					./configure
+	      					make && make install  
+	                    '''
+	             put from: toUploadDir+"profile", into: "/etc/profile"
+			     executeScript '''
+			      			#!/bin/sh
+		     			source /etc/profile
+		     			echo $ERL_HOME
+		     			rpm -i --nodeps /home/rabbitMqHome/rabbitmq-server-1.4.0-1.noarch.rpm
+		     			chkconfig rabbitmq-server on
+		     		'''
+	    }
+	}
+}

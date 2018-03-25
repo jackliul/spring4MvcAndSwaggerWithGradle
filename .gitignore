@@ -5,6 +5,7 @@
 /bin
 /.setting
 /.gradle
+.settings/
 .gitignore.swo
 .gitigonore.swp
 /git

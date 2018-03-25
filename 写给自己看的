@@ -17,6 +17,8 @@ http://blog.csdn.net/wqc19920906/article/details/52608460?locationNum=10&fps=1
 https://gradle-ssh-plugin.github.io/docs/
 https://www.cnblogs.com/reblue520/p/7130914.html
 
+http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html
+
 jenkins离线暗转地址(安装Skip Certificate Check plugin后免进坑)
 https://updates.jenkins-ci.org/download/plugins/
 
@@ -25,3 +27,11 @@ https://updates.jenkins-ci.org/download/plugins/
 2：环境(网络)允许的话,能直接看英文文档直接看,避免进国人三人成虎的坑
 3：能用stackoverflow的尽量用,同上
 4: 博客园 oschina csdn次之
+
+本地没问题 线上出现：
+java.lang.NoClassDefFoundError: javax/el/ELManager
+javax.el-api放入tomcat lib目录下
+
+NoClassDefFoundError: javax/servlet/jsp/jstl/core/Config
+http://archive.apache.org/dist/jakarta/taglibs/standard/binaries/
+jakarta-taglibs-standard-1.1.2.zip这个包，解压缩后将standard和jstl两个包放入lib下即可
