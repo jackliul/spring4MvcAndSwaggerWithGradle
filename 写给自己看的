@@ -22,6 +22,10 @@ http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.h
 jenkins离线暗转地址(安装Skip Certificate Check plugin后免进坑)
 https://updates.jenkins-ci.org/download/plugins/
 
+Determining IP informateion for eth0 ... failed; no link present. check cable?Determining IP informateion for eth0 ... failed; no link present. check cable?
+(vmnet0未找到)开启本地服务里面的Device install Service;Device Setup Manager两个服务。还原虚拟网络编辑器里的设置就可以了
+当重装centos几遍以后都没找到问题，要怀疑是物理机配置有问题了，一般是服务没开启，软件自动优化后有问题，
+
 回思：
 1：接受一个新东西前期会有个一两天的迷惘期,急不来,急也没用
 2：环境(网络)允许的话,能直接看英文文档直接看,避免进国人三人成虎的坑

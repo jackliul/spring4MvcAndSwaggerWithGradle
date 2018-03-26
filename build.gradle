@@ -25,6 +25,7 @@ ext{
     realPassword = System.getProperty("realPassword") ?:'12345678' 
     archiveName = System.getProperty("archiveName") ?:'spring4MvcAndSwaggerWithGradle'
     toUploadDir = System.getProperty("toUploadDir") ?:'D:/deploy-softwares/' 
+    cmd = System.getProperty("cmd") ?:'openBrowser.bat ' + realHost
    
 }
 tasks.withType(JavaCompile) {
@@ -203,9 +204,8 @@ task installJenkins(dependsOn: installTomcat) << {
             put from: toUploadFile("jenkins.war"), into: "/home/jenkinsHome"
             executeScript '''
       					#!/bin/sh  
-      					nohup /home/jdkHome/jdk8/bin/java -jar /home/jenkinsHome/jenkins.war --httpPort=9090 &
-      					sleep 5
-      					exit
+      					nohup /home/jdkHome/jdk8/bin/java -jar /home/jenkinsHome/jenkins.war --httpPort=9090 -d >/home/jenkinsHome/jenkisDebug.info 2>&1 &
+      					echo "jenkins install success!!! "
       				'''
             //execute 'nohup java -jar /home/jenkinsHome/jenkins.war --httpPort=9090 & '
 	    }
@@ -324,8 +324,6 @@ task deploy(dependsOn: war) << {
   }  
 }
 
-
-def cmd = 'openBrowser.bat' + realHost
 task openBrowser(dependsOn: deploy) << {
 	def cmdResult = cmd.execute().text.trim()
 }

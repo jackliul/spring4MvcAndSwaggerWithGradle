@@ -1,1 +1,1 @@
-off ping 0.0.0.0  -n 36  echo on
+off ping 0.0.0.0  -n 100  echo on
