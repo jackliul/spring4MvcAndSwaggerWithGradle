@@ -363,14 +363,16 @@ task deployOmsFrontV() << {
         				#!/bin/sh
       					rm -rf /home/nginxHome/nginxInstall/html/index.html /home/nginxHome/nginxInstall/html/static /home/nginxHome/nginxInstall/html/dist.zip
                     '''  
-        put from: 'D:/gitPro/pros/oms-front_v/dist.zip', into: '/home/nginxHome/nginxInstall/html/' 
-        executeScript '''
+        put from: 'D:/gitPro/pros/oms-front_v/dist/index.html', into: '/home/nginxHome/nginxInstall/html/' 
+         put from: 'D:/gitPro/pros/oms-front_v/dist/static', into: '/home/nginxHome/nginxInstall/html/' 
+       /* executeScript '''
       					#!/bin/sh
       					unzip -d /home/nginxHome/nginxInstall/html/ /home/nginxHome/nginxInstall/html/dist.zip
       					cd /home/nginxHome/nginxInstall/html/ && mv dist/** . 
 						rm -rf /home/nginxHome/nginxInstall/html/dist 
 						rm -rf /home/nginxHome/nginxInstall/html/dist.zip						 
                     '''
+                    */
     }  
   }  
 }
