@@ -256,6 +256,10 @@ task installRedis() << {
 					rm -rf /home/redisHome/redis-4.0.8.tar.gz
 					cd /home/redisHome/redis-4.0.8
 				    make install PREFIX=/home/redisHome/redisInstall/ 
+				    sed -i "136s/no/yes/" /home/redisHome/redis-4.0.8/redis.conf
+				    sed -i "500s/#//p" /home/redisHome/redis-4.0.8/redis.conf
+				    sed -i "500s/foobared/123@QWErty/p" /home/redisHome/redis-4.0.8/redis.conf
+				   	nohup /home/redisHome/redisInstall/bin/redis-server /home/redisHome/redis-4.0.8/redis.conf >/home/redisHome/redisDebug.info 2>&1 &
 	            '''
 	    }
 	}

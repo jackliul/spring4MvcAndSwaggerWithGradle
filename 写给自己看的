@@ -54,8 +54,11 @@ scp -r root@192.168.8.34:/home/ nodeHome
 
 
 
-
-
+mysql安装
+https://blog.csdn.net/huyangg/article/details/71308147
+https://blog.csdn.net/sinat_36384705/article/details/71083032
+GRANT ALL PRIVILEGES ON *.* TO ‘root’@’%’ IDENTIFIED BY ‘这里填你的密码’ WITH GRANT OPTION; 
+FLUSH PRIVILEGES;
 https://www.cnblogs.com/bigbrotherer/p/7241845.html
 GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' IDENTIFIED BY 'root' WITH GRANT OPTION;
 
