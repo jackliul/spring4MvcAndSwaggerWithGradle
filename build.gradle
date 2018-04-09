@@ -20,9 +20,9 @@ version '1.0-SNAPSHOT'
 sourceCompatibility = 1.8
 ext{
     env = System.getProperty("env") ?: "dev"
-    realHost = System.getProperty("realHost") ?: '192.168.0.165'  
+    realHost = System.getProperty("realHost") ?: '47.106.123.189'  
     realUser = System.getProperty("realUser") ?:'root'  
-    realPassword = System.getProperty("realPassword") ?:'12345678' 
+    realPassword = System.getProperty("realPassword") ?:'Intelink999()' 
     archiveName = System.getProperty("archiveName") ?:'spring4MvcAndSwaggerWithGradle'
     toUploadDir = System.getProperty("toUploadDir") ?:'D:/deploy-softwares/' 
     cmd = System.getProperty("cmd") ?:'openBrowser.bat ' + realHost
@@ -59,7 +59,7 @@ dependencies {
 	compile 'io.springfox:springfox-swagger2:2.6.1'
 	compile 'io.springfox:springfox-swagger-ui:2.6.1'
 	compile 'com.drore.cloud:swagger-bootstrap-ui:1.4'
-	compile 'com.fasterxml.jackson.core:jackson-core:2.5.1'
+	compile 'com.fasterxml.jackson.core:jackson-core:2.5.1' 
 	compile 'com.fasterxml.jackson.core:jackson-databind:2.5.1'
 	compile 'com.fasterxml.jackson.core:jackson-annotations:2.5.1'
 	
@@ -241,8 +241,8 @@ task installRabbitMq(dependsOn: installJenkins) << {
 	}
 }
 
-// https://www.cnblogs.com/yinz/p/7065146.html
-task installRedis(dependsOn: installJenkins) << {
+// https://www.cnblogs.com/yinz/p/7065146.html dependsOn: installJenkins
+task installRedis() << {
 	ssh.run {  
 		    session(remotes.deployServer) { 
 	        executeScript '''
@@ -294,8 +294,8 @@ task closeThefire(dependsOn: installNginx) << {
 	    }
 	}
 }
-
-task initEnv(dependsOn: closeThefire)<<{
+// dependsOn: closeThefire
+task initEnv()<<{
 	ssh.run {  
 	    session(remotes.deployServer) { 
 	         executeScript '''
@@ -326,6 +326,58 @@ task deploy(dependsOn: war) << {
 
 task openBrowser(dependsOn: deploy) << {
 	def cmdResult = cmd.execute().text.trim()
+}
+
+
+//  cd /cygdrive/d/gitPro/pros/user-center && gradle build -Denv=pro && cd /cygdrive/d/openCodes/spring4MvcAndSwaggerWithGradle && gradle clean deployUserCenter 
+task deployUserCenter() << { 
+  ssh.run {  
+    session(remotes.deployServer) {  
+        execute ' kill -9 `cat /home/tomcatHome/tomcat_user_center/tomcat_user_center.pid` '
+    	remove '/home/tomcatHome/tomcat_user_center/webapps/user-center','/home/tomcatHome/tomcat_user_center/webapps/user-center.war'
+		put from: 'D:/gitPro/pros/user-center/build/libs/user-center.war', into: '/home/tomcatHome/tomcat_user_center/webapps'
+		execute '/home/tomcatHome/tomcat_user_center/bin/startup.sh'  
+    }  
+  }  
+}
+// cd /cygdrive/d/gitPro/pros/oms-back/oms-web  && gradle build -Denv=pro && cd /cygdrive/d/openCodes/spring4MvcAndSwaggerWithGradle && gradle clean deployOmsBack
+task deployOmsBack() << { 
+  ssh.run {  
+    session(remotes.deployServer) {  
+        execute ' kill -9 `cat /home/tomcatHome/tomcat_oms_back/tomcat_oms_back.pid` '
+    	remove '/home/tomcatHome/tomcat_oms_back/webapps/oms-web.war','/home/tomcatHome/tomcat_oms_back/webapps/oms-web.war'
+		put from: 'D:/gitPro/pros/oms-back/oms-web/build/libs/oms-web.war', into: '/home/tomcatHome/tomcat_oms_back/webapps'
+		execute '/home/tomcatHome/tomcat_oms_back/bin/startup.sh'  
+    }  
+  }  
+}
+
+// sh /cygdrive/d/openCodes/spring4MvcAndSwaggerWithGradle/deployPro.sh
+// cd /cygdrive/d/gitPro/pros/oms-front_v && sed -i 's/localhost/47.106.123.189/g' config/index.js && npm install && npm run build && zip -r dist.zip dist && cd /cygdrive/d/openCodes/spring4MvcAndSwaggerWithGradle && gradle clean deployOmsFrontV
+// cd /cygdrive/d/gitPro/pros/oms-front_v && sed -i 's/localhost/47.106.123.189/g' config/index.js && npm install && npm run build
+// cd /cygdrive/d/openCodes/spring4MvcAndSwaggerWithGradle && gradle clean deployOmsFrontV
+task deployOmsFrontV() << { 
+  ssh.run {  
+       session(remotes.deployServer) {  
+    				executeScript '''
+        				#!/bin/sh
+      					rm -rf /home/nginxHome/nginxInstall/html/index.html /home/nginxHome/nginxInstall/html/static /home/nginxHome/nginxInstall/html/dist.zip
+                    '''  
+        put from: 'D:/gitPro/pros/oms-front_v/dist.zip', into: '/home/nginxHome/nginxInstall/html/' 
+        executeScript '''
+      					#!/bin/sh
+      					unzip -d /home/nginxHome/nginxInstall/html/ /home/nginxHome/nginxInstall/html/dist.zip
+      					cd /home/nginxHome/nginxInstall/html/ && mv dist/** . 
+						rm -rf /home/nginxHome/nginxInstall/html/dist 
+						rm -rf /home/nginxHome/nginxInstall/html/dist.zip						 
+                    '''
+    }  
+  }  
+}
+
+def delCmd = 'delZip.bat'
+task delFrontZip(dependsOn: deployOmsFrontV) << { 
+  def cmdResult = delCmd.execute().text.trim()
 }
 
 gretty {

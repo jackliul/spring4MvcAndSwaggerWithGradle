@@ -39,3 +39,23 @@ javax.el-api放入tomcat lib目录下
 NoClassDefFoundError: javax/servlet/jsp/jstl/core/Config
 http://archive.apache.org/dist/jakarta/taglibs/standard/binaries/
 jakarta-taglibs-standard-1.1.2.zip这个包，解压缩后将standard和jstl两个包放入lib下即可
+
+
+
+CATALINA_PID=/home/tomcatHome/tomcat_user_center/tomcat_user_center.pid
+CATALINA_OPTS="-server -Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=8888"
+#JAVA_OPTS="-Xms512m -Xmx512m -XX:ParallelGCThreads=8 -XX:PermSize=128m -XX:MaxPermSize=256m" 
+
+kill -9 `cat /home/tomcatHome/tomcat_user_center/tomcat_user_center.pid`
+
+yum install openssh-clients
+scp -r nodeHome root@192.168.8.34:/home/
+scp -r root@192.168.8.34:/home/ nodeHome 
+
+
+
+
+
+https://www.cnblogs.com/bigbrotherer/p/7241845.html
+GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' IDENTIFIED BY 'root' WITH GRANT OPTION;
+
