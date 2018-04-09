@@ -20,7 +20,7 @@ version '1.0-SNAPSHOT'
 sourceCompatibility = 1.8
 ext{
     env = System.getProperty("env") ?: "dev"
-    realHost = System.getProperty("realHost") ?: '47.106.123.189'  
+    realHost = System.getProperty("realHost") ?: 'xxxx'  
     realUser = System.getProperty("realUser") ?:'root'  
     realPassword = System.getProperty("realPassword") ?:'Intelink999()' 
     archiveName = System.getProperty("archiveName") ?:'spring4MvcAndSwaggerWithGradle'
