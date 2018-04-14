@@ -14,18 +14,21 @@ apply plugin: 'org.hidetake.ssh'
 
 // TODO http://blog.csdn.net/fly910905/article/details/79131755 实现静态文档的生成
 
+
+
 import org.apache.tools.ant.filters.ReplaceTokens
 group 'com.jacliu.test'
 version '1.0-SNAPSHOT'
 sourceCompatibility = 1.8
 ext{
     env = System.getProperty("env") ?: "dev"
-    realHost = System.getProperty("realHost") ?: 'xxxx'  
+    realHost = System.getProperty("realHost") ?: '192.168.8.33'  
     realUser = System.getProperty("realUser") ?:'root'  
-    realPassword = System.getProperty("realPassword") ?:'Intelink999()' 
+    realPassword = System.getProperty("realPassword") ?:'ItVm905-3' 
     archiveName = System.getProperty("archiveName") ?:'spring4MvcAndSwaggerWithGradle'
     toUploadDir = System.getProperty("toUploadDir") ?:'D:/deploy-softwares/' 
     cmd = System.getProperty("cmd") ?:'openBrowser.bat ' + realHost
+    delZipCmd = System.getProperty("delZipCmd") ?:'delZip.bat ' + realHost
    
 }
 tasks.withType(JavaCompile) {
@@ -74,7 +77,7 @@ dependencies {
 	
 	
 	// https://mvnrepository.com/artifact/org.hibernate.validator/hibernate-validator
-	compile group: 'org.hibernate.validator', name: 'hibernate-validator', version: '6.0.8.Final'
+	compile group: 'org.hibernate.validator', name: 'hibernate-validator', version: '6.0.8.Final'   
 }
 	
 sourceSets {
@@ -211,6 +214,51 @@ task installJenkins(dependsOn: installTomcat) << {
 	    }
 	}
 }
+// 安装mysql https://blog.csdn.net/dearfinance/article/details/79494475
+// https://blog.imdst.com/mysql-5-6-pei-zhi-you-hua/
+// /usr/bin/mysql_install_db --force
+// 启动：：  /usr/bin/mysqld_safe --defaults-file=/etc/my.cnf --user=root & 
+// 关闭：： /usr/bin/mysqladmin shutdown -u root -p &
+// 有问题，修改密码：： /usr/bin/mysqladmin -u root -p '123@QWErty' 
+// GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' identified by '123@QWErty'  WITH GRANT OPTION;
+// 
+task installMysql() << {
+	ssh.run {  
+	    session(remotes.deployServer) { 
+			 executeScript '''
+      					#!/bin/sh  
+						rm -rf /home/mysqlHome
+                        mkdir /home/mysqlHome
+                        mkdir /home/mysqlHome/installs
+                        yum -y install mariadb* 
+                        yum install -y unzip zip
+                        wget -P /home/mysqlHome http://mirror.centos.org/centos/6/os/x86_64/Packages/libaio-0.3.107-10.el6.x86_64.rpm 
+                    '''
+             put from: toUploadDir+"MySQL-5.6.39-1.el7.x86_64.rpm-bundle.tar", into: "/home/mysqlHome/installs/"
+             executeScript '''
+      					#!/bin/sh  
+      					tar -xvf /home/mysqlHome/installs/MySQL-5.6.39-1.el7.x86_64.rpm-bundle.tar -C /home/mysqlHome/installs/
+      					cd /home/mysqlHome/installs && 
+      					yum -y remove mysql mysql-server mysql-libs compat-mysql51
+      					yum -y install autoconf 
+      					rpm -ivh libaio-0.3.107-10.el6.x86_64.rpm &&
+      					rpm -ivh MySQL-client-5.6.39-1.el7.x86_64.rpm && 
+      					rpm -ivh MySQL-devel-5.6.39-1.el7.x86_64.rpm &&
+      					rpm -ivh MySQL-server-5.6.39-1.el7.x86_64.rpm  
+      					cp /usr/share/mysql/my-default.cnf /etc/my.cnf
+      					/usr/bin/mysql_install_db 
+      					service mysql start 
+      				 #	cat /root/.mysql_secret  
+      				 #	mysql -u username -p password   
+      				 #	SET PASSWORD = PASSWORD('yourpassword');
+      				 #	use mysql;  
+      				 #	exit;
+      				 #	chkconfig mysql on
+      				 #	chkconfig --list | grep mysql  
+                    '''
+	    }
+	}
+}
 // https://blog.csdn.net/mx472756841/article/details/50733886
 task installRabbitMq(dependsOn: installJenkins) << {
 	ssh.run {  
@@ -242,6 +290,7 @@ task installRabbitMq(dependsOn: installJenkins) << {
 }
 
 // https://www.cnblogs.com/yinz/p/7065146.html dependsOn: installJenkins
+// 
 task installRedis() << {
 	ssh.run {  
 		    session(remotes.deployServer) { 
@@ -256,6 +305,8 @@ task installRedis() << {
 					rm -rf /home/redisHome/redis-4.0.8.tar.gz
 					cd /home/redisHome/redis-4.0.8
 				    make install PREFIX=/home/redisHome/redisInstall/ 
+				    sed -i "92s/6379/6000/" /home/redisHome/redis-4.0.8/redis.conf
+				    sed -i "136s/no/yes/" /home/redisHome/redis-4.0.8/redis.conf
 				    sed -i "136s/no/yes/" /home/redisHome/redis-4.0.8/redis.conf
 				    sed -i "500s/#//p" /home/redisHome/redis-4.0.8/redis.conf
 				    sed -i "500s/foobared/123@QWErty/p" /home/redisHome/redis-4.0.8/redis.conf
@@ -332,11 +383,19 @@ task openBrowser(dependsOn: deploy) << {
 	def cmdResult = cmd.execute().text.trim()
 }
 
-
+def pullUserCenterBat = 'pullUserCenter.bat'
+task pullUserCenter() << { 
+	def cmdResult = pullUserCenterBat.execute().text.trim()
+}
 //  cd /cygdrive/d/gitPro/pros/user-center && gradle build -Denv=pro && cd /cygdrive/d/openCodes/spring4MvcAndSwaggerWithGradle && gradle clean deployUserCenter 
 task deployUserCenter() << { 
   ssh.run {  
     session(remotes.deployServer) {  
+        /* executeScript '''
+      						#!/bin/sh
+      						# kill -9 ` cat /home/tomcatHome/tomcat_user_center/tomcat_user_center.pid `
+      						 /home/tomcatHome/tomcat_user_center/bin/shutdown.sh
+      					'''*/
         execute ' kill -9 `cat /home/tomcatHome/tomcat_user_center/tomcat_user_center.pid` '
     	remove '/home/tomcatHome/tomcat_user_center/webapps/user-center','/home/tomcatHome/tomcat_user_center/webapps/user-center.war'
 		put from: 'D:/gitPro/pros/user-center/build/libs/user-center.war', into: '/home/tomcatHome/tomcat_user_center/webapps'
@@ -367,7 +426,7 @@ task deployOmsFrontV() << {
         				#!/bin/sh
       					rm -rf /home/nginxHome/nginxInstall/html/index.html /home/nginxHome/nginxInstall/html/static /home/nginxHome/nginxInstall/html/dist.zip
                     '''  
-        put from: 'D:/gitPro/pros/oms-front_v/dist/index.html', into: '/home/nginxHome/nginxInstall/html/' 
+         put from: 'D:/gitPro/pros/oms-front_v/dist/index.html', into: '/home/nginxHome/nginxInstall/html/' 
          put from: 'D:/gitPro/pros/oms-front_v/dist/static', into: '/home/nginxHome/nginxInstall/html/' 
        /* executeScript '''
       					#!/bin/sh
@@ -381,9 +440,49 @@ task deployOmsFrontV() << {
   }  
 }
 
-def delCmd = 'delZip.bat'
+task deployFileServer() << {
+    ssh.run {
+        session(remotes.deployServer) {
+            execute ' kill -9 `cat /home/tomcatHome/tomcat_file_server/tomcat_file_server.pid` '
+            remove '/home/tomcatHome/tomcat_file_server/webapps/file-server-web.war','/home/tomcatHome/tomcat_file_server/webapps/file-server-web.war'
+            put from: 'D:/gitPro/pros/oms-back/file-server/build/libs/file-server-web.war', into: '/home/tomcatHome/tomcat_file_server/webapps'
+            execute ' /home/tomcatHome/tomcat_file_server/bin/startup.sh '
+        }
+    }
+}
+
 task delFrontZip(dependsOn: deployOmsFrontV) << { 
-  def cmdResult = delCmd.execute().text.trim()
+  def cmdResult = delZipCmd.execute().text.trim()
+}
+
+task testRemote() << { 
+  ssh.run {  
+    session(remotes.deployServer) { 
+    
+    remove '/home/test1'
+    execute ' ls /home/tomcatHome/tomcat_user_center/tomcat_user_center.pid '
+     execute ' kill -9 `cat /home/tomcatHome/tomcat_oms_back/tomcat_oms_back.pid` '
+     
+     execute '/home/tomcatHome/tomcat_oms_back/bin/startup.sh'  
+     
+    	//executeScript '''
+      			//		#!/bin/sh
+						//cat /home/tomcatHome/tomcat_oms_back/tomcat_oms_back.pid && 
+						//echo 'xxxxx,,,x,,x,,,x,x,x' &&
+						//ps -ef | grep tomcat &&
+						
+				//		rm -rf /home/test1 
+						// echo "ok la la ," &&
+						//ll /home/tomcatHome/tomcat_user_center/tomcat_user_center.pid && 
+						//chmod +755 /home/tomcatHome/tomcat_user_center/tomcat_user_center.pid &&
+						//ll /home/tomcatHome/tomcat_user_center/tomcat_user_center.pid
+               //     '''
+       // execute ' kill -9 `cat /home/tomcatHome/tomcat_oms_back/tomcat_oms_back.pid` '
+    	//remove '/home/tomcatHome/tomcat_oms_back/webapps/oms-web.war','/home/tomcatHome/tomcat_oms_back/webapps/oms-web.war'
+		//put from: 'D:/gitPro/pros/oms-back/oms-web/build/libs/oms-web.war', into: '/home/tomcatHome/tomcat_oms_back/webapps'
+		//execute '/home/tomcatHome/tomcat_oms_back/bin/startup.sh'  
+    }  
+  }  
 }
 
 gretty {
