@@ -444,8 +444,8 @@ task deployFileServer() << {
     ssh.run {
         session(remotes.deployServer) {
             execute ' kill -9 `cat /home/tomcatHome/tomcat_file_server/tomcat_file_server.pid` '
-            remove '/home/tomcatHome/tomcat_file_server/webapps/file-server-web.war','/home/tomcatHome/tomcat_file_server/webapps/file-server-web.war'
-            put from: 'D:/gitPro/pros/oms-back/file-server/build/libs/file-server-web.war', into: '/home/tomcatHome/tomcat_file_server/webapps'
+            remove '/home/tomcatHome/tomcat_file_server/webapps/file-server.war','/home/tomcatHome/tomcat_file_server/webapps/file-server.war'
+            put from: 'D:/gitPro/pros/oms-back/file-server/build/libs/file-server.war', into: '/home/tomcatHome/tomcat_file_server/webapps'
             execute ' /home/tomcatHome/tomcat_file_server/bin/startup.sh '
         }
     }
