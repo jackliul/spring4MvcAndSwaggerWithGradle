@@ -14,7 +14,9 @@ apply plugin: 'org.hidetake.ssh'
 
 // TODO http://blog.csdn.net/fly910905/article/details/79131755 实现静态文档的生成
 
-
+// 哲盟：：：47.106.123.189   Intelink999()
+// 腾达：：： 47.89.10.238   FararFDe999()
+// 192.168.8.33 ItVm905-3
 
 import org.apache.tools.ant.filters.ReplaceTokens
 group 'com.jacliu.test'
@@ -22,9 +24,9 @@ version '1.0-SNAPSHOT'
 sourceCompatibility = 1.8
 ext{
     env = System.getProperty("env") ?: "dev"
-    realHost = System.getProperty("realHost") ?: '192.168.8.33'  
+    realHost = System.getProperty("realHost") ?: '192.168.8.114'  
     realUser = System.getProperty("realUser") ?:'root'  
-    realPassword = System.getProperty("realPassword") ?:'ItVm905-3' 
+    realPassword = System.getProperty("realPassword") ?:'12345678' 
     archiveName = System.getProperty("archiveName") ?:'spring4MvcAndSwaggerWithGradle'
     toUploadDir = System.getProperty("toUploadDir") ?:'D:/deploy-softwares/' 
     cmd = System.getProperty("cmd") ?:'openBrowser.bat ' + realHost
@@ -110,7 +112,7 @@ war{
 // 远程上传到服务器上
 ssh.settings {  
   knownHosts = allowAnyHosts  
-}  
+}
 
 remotes {  
   	deployServer {  
@@ -129,13 +131,15 @@ task installTools() << {
 	ssh.run {
 		    session(remotes.deployServer) { 
 			executeScript '''
-					#!/bin/sh  
+					#!/bin/sh
+					yum -y install vim
 		            yum -y install wget
 		            yum -y install lrzsz
-		            yum -y install make ncurses-devel gcc gcc-c++ unixODBC unixODBC-devel openssl openssl-devel
+		            yum -y install net-tools
+		            yum -y install make ncurses-devel gcc gcc-c++ unixODBC unixODBC-devel openssl openssl*
+		            yum -y install glibc-devel ncurses-devel xmlto
 	                yum -y install tcl
 	                yum -y install pcre*  
-					yum -y install openssl*
 	           '''  
 	        }
        }
@@ -259,32 +263,36 @@ task installMysql() << {
 	    }
 	}
 }
-// https://blog.csdn.net/mx472756841/article/details/50733886
-task installRabbitMq(dependsOn: installJenkins) << {
+// https://www.cnblogs.com/xrog/p/8519967.html
+// https://www.cnblogs.com/sandea/p/5724072.html
+// gradle clean installRabbitMq -DrealHost='192.168.8.34' -DrealPassword='ItVm905-4'
+// 								-DrealHost='47.89.10.238' -DrealPassword='FararFDe999()'
+task installRabbitMq() << {
 	ssh.run {  
 		    session(remotes.deployServer) { 
 		         executeScript '''
 	      					#!/bin/sh
-	      					rm -rf /home/rabbitMqHome
-	                        mkdir /home/rabbitMqHome
-	      					wget -P /home/rabbitMqHome http://erlang.org/download/otp_src_20.3.tar.gz
-	      					wget -P /home/rabbitMqHome https://www.rabbitmq.com/releases/rabbitmq-server/v1.4.0/rabbitmq-server-1.4.0-1.noarch.rpm
-	      					cd /home/rabbitMqHome
-	      					tar -zxvf /home/rabbitMqHome/otp_src_20.3.tar.gz -C /home/rabbitMqHome/
-	      					mv /home/rabbitMqHome/otp_src_20.3.tar.gz 
-	      					mv /home/rabbitMqHome/otp_src_20.3 /home/rabbitMqHome/rbmq20
-	      					cd /home/rabbitMqHome/rbmq20
-	      					./configure
-	      					make && make install  
+	      					rm -rf /home/rabbitMqHome &&
+	                        mkdir /home/rabbitMqHome &&
+	                        mkdir /home/rabbitMqHome/erlangInstall &&
+	                       # mkdir /home/rabbitMqHome/rabbitMqInstall &&
+	      					wget -P /home/rabbitMqHome http://erlang.org/download/otp_src_20.3.tar.gz &&
+	      					tar -zxvf /home/rabbitMqHome/otp_src_20.3.tar.gz -C /home/rabbitMqHome &&
+	      					cd /home/rabbitMqHome/otp_src_20.3 &&
+	      					./configure --prefix=/home/rabbitMqHome/erlangInstall --without-javac &&
+	      					make && make install &&
+	      					wget -P /home/rabbitMqHome https://www.rabbitmq.com/releases/rabbitmq-server/v3.6.15/rabbitmq-server-generic-unix-3.6.15.tar.xz &&
+	      					cd /home/rabbitMqHome &&
+	      					xz -d rabbitmq-server-generic-unix-3.6.15.tar.xz && 
+	      					tar -xvf rabbitmq-server-generic-unix-3.6.15.tar
+	      					
+	      					# nohup rabbitmq-server -detached  >/home/rabbitMqHome/rabbitMq.log 2>&1 &
+	      					#rabbitmq-plugins enable rabbitmq_management && 
+	      					#rabbitmqctl add_user admin admin && 
+	      					#rabbitmqctl set_user_tags admin administrator &&
+	      					#rabbitmqctl set_permissions -p / admin '.*' '.*' '.*' &&
+	      					#rabbitmq-server 
 	                    '''
-	             put from: toUploadDir+"profile", into: "/etc/profile"
-			     executeScript '''
-			      			#!/bin/sh
-				     			source /etc/profile
-				     			echo $ERL_HOME
-				     			rpm -i --nodeps /home/rabbitMqHome/rabbitmq-server-1.4.0-1.noarch.rpm
-				     			chkconfig rabbitmq-server on
-				     		'''
 	    }
 	}
 }

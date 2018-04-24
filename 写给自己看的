@@ -53,6 +53,13 @@ scp -r nodeHome root@192.168.8.34:/home/
 scp -r root@192.168.8.34:/home/ nodeHome 
 
 
+df -lk
+du --max-depth=1 -h
+ls -lht
+
+
+du -sh /*
+df -h
 
 mysql安装
 https://blog.csdn.net/huyangg/article/details/71308147
