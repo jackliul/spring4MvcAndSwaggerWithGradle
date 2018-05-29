@@ -64,8 +64,56 @@ df -h
 mysql安装
 https://blog.csdn.net/huyangg/article/details/71308147
 https://blog.csdn.net/sinat_36384705/article/details/71083032
-GRANT ALL PRIVILEGES ON *.* TO ‘root’@’%’ IDENTIFIED BY ‘这里填你的密码’ WITH GRANT OPTION; 
+GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' IDENTIFIED BY 'root' WITH GRANT OPTION;
 FLUSH PRIVILEGES;
 https://www.cnblogs.com/bigbrotherer/p/7241845.html
 GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' IDENTIFIED BY 'root' WITH GRANT OPTION;
+编译安装
+https://www.cnblogs.com/ruigege/p/8064847.html
+yum -y install autoconf
+cmake -DMYSQL_USER=mysql -DCMAKE_INSTALL_PREFIX=/home/apps/mysqlHome/mysqlInstall -DINSTALL_DATADIR=/home/apps/mysqlHome/mysqlData -DMYSQL_UNIX_ADDR=/tmp/mysqld.sock -DDEFAULT_CHARSET=utf8  -DDEFAULT_COLLATION=utf8_general_ci -DEXTRA_CHARSETS=all -DWITH_EMBEDDED_SERVER=1 -DENABLED_LOCAL_INFILE=1 -DWITH_MYISAM_STORAGE_ENGINE=1 -DWITH_INNOBASE_STORAGE_ENGINE=1 && make && make install
+/home/apps/mysqlHome/mysqlInstall/scripts/mysql_install_db --user=mysql --defaults-file=/etc/my.cnf --basedir=/home/apps/mysqlHome/mysqlInstall --datadir=/home/apps/mysqlHome/mysqlData
+mysqld_safe --user=mysql
+mysqladmin -u root -p "12345678"
+
+https://www.cnblogs.com/piaoyang2087/articles/7908795.html
+
+export HISTTIMEFORMAT='%F %T'
+
+:27,30s#^#//#g
+:27,30s#^//##g
+
+:10,20s/^/#/g
+:10,20s/^/#/g
+
+2,5s#^#//#g  
+2,5s#^//##g 
+
+tomcat 自启动
+/usr/lib/systemd/system
+https://blog.csdn.net/tiantang_1986/article/details/53704966
+定时任务
+https://blog.csdn.net/qwssd/article/details/74010836
+
+
+编译安装gitlab
+https://www.dwhd.org/20150930_163302.html
+
+
+sed -i 's/oms_platform/oms_FDE/g' /home/tomcatHome/tomcat_oms_back/webapps/oms-web/WEB-INF/classes/jdbc.properties &&
+cat /home/tomcatHome/tomcat_oms_back/webapps/oms-web/WEB-INF/classes/jdbc.properties &&
+kill `cat /home/tomcatHome/tomcat_oms_back/tomcat_oms_back.pid` &&
+/home/tomcatHome/tomcat_oms_back/bin/startup.sh &&
+
+sed -i 's/oms_platform/oms_FDE/g' /home/tomcatHome/tomcat_user_center/webapps/user-center/WEB-INF/classes/jdbc.properties &&
+cat /home/tomcatHome/tomcat_user_center/webapps/user-center/WEB-INF/classes/jdbc.properties &&
+kill `cat /home/tomcatHome/tomcat_user_center/tomcat_user_center.pid` &&
+/home/tomcatHome/tomcat_user_center/bin/startup.sh
+
+
+
+
+
+
+
 

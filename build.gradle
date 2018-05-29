@@ -221,8 +221,8 @@ task installJenkins(dependsOn: installTomcat) << {
 // 安装mysql https://blog.csdn.net/dearfinance/article/details/79494475
 // https://blog.imdst.com/mysql-5-6-pei-zhi-you-hua/
 // /usr/bin/mysql_install_db --force
-// 启动：：  /usr/bin/mysqld_safe --defaults-file=/etc/my.cnf --user=root & 
-// 关闭：： /usr/bin/mysqladmin shutdown -u root -p &
+// 【fardar的】启动：：  /usr/bin/mysqld_safe --defaults-file=/etc/my.cnf --user=root & 
+// 【fardar的】关闭：： /usr/bin/mysqladmin shutdown -u root -p &
 // 有问题，修改密码：： /usr/bin/mysqladmin -u root -p '123@QWErty' 
 // GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' identified by '123@QWErty'  WITH GRANT OPTION;
 // 
@@ -231,34 +231,32 @@ task installMysql() << {
 	    session(remotes.deployServer) { 
 			 executeScript '''
       					#!/bin/sh  
-						rm -rf /home/mysqlHome
-                        mkdir /home/mysqlHome
-                        mkdir /home/mysqlHome/installs
-                        yum -y install mariadb* 
-                        yum install -y unzip zip
-                        wget -P /home/mysqlHome http://mirror.centos.org/centos/6/os/x86_64/Packages/libaio-0.3.107-10.el6.x86_64.rpm 
+                        yum -y install autoconf gcc gcc-c++ cmake ncurses-devel bison &&
+						useadd -s /sbin/nologin mysql &&
+						rm -rf /home/apps/mysqlHome &&
+                        mkdir /home/apps/mysqlHome &&
+                        mkdir /home/apps/mysqlHome/mysqlInstall &&
+                        mkdir /home/apps/mysqlHome/mysqlData &&
+                        # wget -P /home/apps/mysqlHome http://dev.mysql.com/get/Downloads/MySQL-5.6/mysql-5.6.23.tar.gz
+                        rm -rf /etc/profile
                     '''
-             put from: toUploadDir+"MySQL-5.6.39-1.el7.x86_64.rpm-bundle.tar", into: "/home/mysqlHome/installs/"
+             put from: toUploadDir+"mysql-5.6.23.tar.gz", into: "/home/mysqlHome/"
+             put from: toUploadDir+"profile", into: "/etc/profile"
              executeScript '''
       					#!/bin/sh  
-      					tar -xvf /home/mysqlHome/installs/MySQL-5.6.39-1.el7.x86_64.rpm-bundle.tar -C /home/mysqlHome/installs/
-      					cd /home/mysqlHome/installs && 
-      					yum -y remove mysql mysql-server mysql-libs compat-mysql51
-      					yum -y install autoconf 
-      					rpm -ivh libaio-0.3.107-10.el6.x86_64.rpm &&
-      					rpm -ivh MySQL-client-5.6.39-1.el7.x86_64.rpm && 
-      					rpm -ivh MySQL-devel-5.6.39-1.el7.x86_64.rpm &&
-      					rpm -ivh MySQL-server-5.6.39-1.el7.x86_64.rpm  
-      					cp /usr/share/mysql/my-default.cnf /etc/my.cnf
-      					/usr/bin/mysql_install_db 
-      					service mysql start 
-      				 #	cat /root/.mysql_secret  
-      				 #	mysql -u username -p password   
-      				 #	SET PASSWORD = PASSWORD('yourpassword');
-      				 #	use mysql;  
-      				 #	exit;
-      				 #	chkconfig mysql on
-      				 #	chkconfig --list | grep mysql  
+      					tar -xvf /home/mysqlHome//mysql-5.6.23.tar.gz -C /home/mysqlHome/ && 
+      					cd /home/mysqlHome/mysql-5.6.23 && 
+      					cmake -DMYSQL_USER=mysql -DCMAKE_INSTALL_PREFIX=/home/apps/mysqlHome/mysqlInstall -DINSTALL_DATADIR=/home/apps/mysqlHome/mysqlData -DMYSQL_UNIX_ADDR=/tmp/mysqld.sock -DDEFAULT_CHARSET=utf8  -DDEFAULT_COLLATION=utf8_general_ci -DEXTRA_CHARSETS=all -DWITH_EMBEDDED_SERVER=1 -DENABLED_LOCAL_INFILE=1 -DWITH_MYISAM_STORAGE_ENGINE=1 -DWITH_INNOBASE_STORAGE_ENGINE=1 
+      					&& make && make install &&
+      					chown -R mysql:mysql /home/mysqlHome/mysql-5.6.23 &&
+      					mv -f /home/mysqlHome/mysql-5.6.23/support-files/my-default.cnf /etc/my.cnf && 
+      					mv /home/mysqlHome/mysql-5.6.23/support-files/mysql.server  /etc/init.d/mysqld && 
+      					chmod a+x /etc/init.d/mysqld && 
+      					chkconfig  --level 345 mysqld on &&
+      					/home/apps/mysqlHome/mysqlInstall/scripts/mysql_install_db --user=mysql --defaults-file=/etc/my.cnf --basedir=/home/apps/mysqlHome/mysqlInstall --datadir=/home/apps/mysqlHome/mysqlData &&
+      					source /etc/profile
+      					
+      					
                     '''
 	    }
 	}
