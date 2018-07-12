@@ -110,7 +110,20 @@ cat /home/tomcatHome/tomcat_user_center/webapps/user-center/WEB-INF/classes/jdbc
 kill `cat /home/tomcatHome/tomcat_user_center/tomcat_user_center.pid` &&
 /home/tomcatHome/tomcat_user_center/bin/startup.sh
 
+grant all privileges on *.* to developer@"%" identified by "123456";
 
+grant all privileges on oms_platform_test.* to tester@"%" identified by "123456";
+flush privileges;
+
+123@QWErty
+mysql -u root 
+use mysql;
+UPDATE user SET Password = PASSWORD('123@QWErty123') WHERE user = 'root';
+FLUSH PRIVILEGES;
+
+
+vim /usr/local/apps/congfigs/fardarConfigs/01/user-center/redis.properties
+vim /usr/local/apps/congfigs/fardarConfigs/test_fardar/user-center/redis.properties
 
 
 

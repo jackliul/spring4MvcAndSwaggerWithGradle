@@ -31,7 +31,6 @@ ext{
     toUploadDir = System.getProperty("toUploadDir") ?:'D:/deploy-softwares/' 
     cmd = System.getProperty("cmd") ?:'openBrowser.bat ' + realHost
     delZipCmd = System.getProperty("delZipCmd") ?:'delZip.bat ' + realHost
-   
 }
 tasks.withType(JavaCompile) {
 	options.encoding = "UTF-8"
@@ -132,7 +131,7 @@ task installTools() << {
 		    session(remotes.deployServer) { 
 			executeScript '''
 					#!/bin/sh
-					yum -y install vim
+					//yum -y install vim
 		            yum -y install wget
 		            yum -y install lrzsz
 		            yum -y install net-tools
@@ -263,6 +262,8 @@ task installMysql() << {
 }
 // https://www.cnblogs.com/xrog/p/8519967.html
 // https://www.cnblogs.com/sandea/p/5724072.html
+// rabbitmq-plugins enable rabbitmq_tracing
+// rabbitmq-plugins enable rabbitmq_shovel rabbitmq-plugins enable rabbitmq_shovel_management
 // gradle clean installRabbitMq -DrealHost='192.168.8.34' -DrealPassword='ItVm905-4'
 // 								-DrealHost='47.89.10.238' -DrealPassword='FararFDe999()'
 task installRabbitMq() << {
@@ -351,8 +352,12 @@ task closeThefire(dependsOn: installNginx) << {
       					#!/bin/sh  
                         iptables -A INPUT -p tcp --dport 80 -j ACCEPT
                         service iptables stop
+                        
+                        firewall-cmd --list-ports
+                        firewall-cmd --zone=public --add-port=80/tcp --permanent
+                        firewall-cmd --reload                        
                     '''  
-	    }
+	    } 
 	}
 }
 // dependsOn: closeThefire

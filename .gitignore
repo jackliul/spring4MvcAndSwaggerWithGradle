@@ -11,6 +11,7 @@
 /git
 .classpath
 .project 
+projects
 ..DS_Store
 # Log file
 *.log
