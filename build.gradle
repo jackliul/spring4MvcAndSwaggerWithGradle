@@ -263,7 +263,7 @@ task installMysql() << {
 // https://www.cnblogs.com/xrog/p/8519967.html
 // https://www.cnblogs.com/sandea/p/5724072.html
 // rabbitmq-plugins enable rabbitmq_tracing
-// rabbitmq-plugins enable rabbitmq_shovel rabbitmq-plugins enable rabbitmq_shovel_management
+// rabbitmq-plugins enable rabbitmq_shovel  rabbitmq_shovel_management rabbitmq_tracing
 // gradle clean installRabbitMq -DrealHost='192.168.8.34' -DrealPassword='ItVm905-4'
 // 								-DrealHost='47.89.10.238' -DrealPassword='FararFDe999()'
 task installRabbitMq() << {

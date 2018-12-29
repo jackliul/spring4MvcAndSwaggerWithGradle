@@ -127,6 +127,87 @@ vim /usr/local/apps/congfigs/fardarConfigs/test_fardar/user-center/redis.propert
 
 
 
+yum update -y
+yum -y install docker
+systemctl start docker
+
+yum list installed | grep docker
+yum -y remove docker-engine.x86_64
+rm -rf /var/lib/docker
+
+systemctl daemon-reload
+systemctl restart docker.service
+
+docker常用命令
+docker run -it image_name /bin/bash  
+docker ps 
+docker exec -it 4df497fa5233 bash
+docker commit ID new_image_name 
+
+docker run -d -p 2222:22 --name test soar/centos:7.1 
+docker pull nginx
+docker run -d -p 8080:80 nginx，把容器内的nginx的80端口，映射到当前服务器的8080端口，当前服务器的ip是192.168.1.120，浏览器输入http://192.168.1.120:8080/
+docker run -d -p 8081:80 nginx，浏览器输入http://192.168.1.120:8081/，就可以看到另外一个nginx已启动
+
+docker commit 235923e34a nginx/centos  将自己构建好的235923e34a容器提交到本地当作下次可以再次使用的映像
+
+df -h
+du -h -x --max-depth=1
+find / -type f -size +5G
+du -h /usr/local/apps/tomcatHome/tomcat_oms_back/logs/catalina.out
+more /usr/local/apps/rabbitMqHomeNew/rabbitmq_server-3.6.15/var/log/rabbitmq/rabbit@iZwz9ba35rxasjhoxa4dq7Z.log
+
+https://www.cnblogs.com/xrog/p/8519967.html
+rabbitmqctl stop 
+rabbitmq-server -detached 
+rabbitmqctl add_user admin admin@123
+rabbitmqctl set_permissions -p "/" admin ".*" ".*" ".*"
+rabbitmqctl set_user_tags admin administrator
+rabbitmq-plugins enable rabbitmq_shovel rabbitmq_tracing rabbitmq_shovel_management
+
+idea破解地址
+http://idea.congm.in/
+
+linux配置
+http://coolnull.com/2842.html
+ 
+性能测试时需要调大
+ulimit -n 
+losf -p PID 可以参看一个进程打开的文
+ 
+yum -y install httpd-tools
+https://www.cnblogs.com/taiyonghai/p/5810150.html
+
+redis 性能优化
+http://blog.51yip.com/nosql/1776.html
+
+tomcat 性能优化
+apr 装到默认的/usr/local/apps/apr 下即可  改为org.apache.coyote.http11.Http11AprProtocol
+https://www.jianshu.com/p/9953003c3ed3 
+
+
+df -hT
+lsblk
+
+find . -type f -size +800M  -print0 | xargs -0 du -h
+find . -type f -size +800M  -print0 | xargs -0 du -h | sort -nr | head -20 
+
+
+安装fastDfs 注意版本对应
+https://www.cnblogs.com/hafiz/p/6893022.html
+
+/usr/bin/fdfs_trackerd /etc/fdfs/tracker.conf 
+ /usr/bin/fdfs_storaged /etc/fdfs/storage.conf
+ 
+ firewall-cmd --state
+ systemctl stop firewalld.service
+ systemctl disable firewalld.service 
+ 
+ ./rabbitmq-server -detached
+ 
+ /usr/sbin/mysqld --daemonize --user=root --pid-file=/var/run/mysqld/mysqld.pid
+ 
+
 
 
 
