@@ -193,6 +193,8 @@ find . -type f -size +800M  -print0 | xargs -0 du -h
 find . -type f -size +800M  -print0 | xargs -0 du -h | sort -nr | head -20 
 
 
+/usr/sbin/mysqld --daemonize --user=root --pid-file=/var/run/mysqld/mysqld.pid --socket=/var/mysql/mysql.sock
+
 安装fastDfs 注意版本对应
 https://www.cnblogs.com/hafiz/p/6893022.html
 
