@@ -199,17 +199,29 @@ find . -type f -size +800M  -print0 | xargs -0 du -h | sort -nr | head -20
 https://www.cnblogs.com/hafiz/p/6893022.html
 
 /usr/bin/fdfs_trackerd /etc/fdfs/tracker.conf 
- /usr/bin/fdfs_storaged /etc/fdfs/storage.conf
+ /usr/bin/fdfs_storaged /etc/fdfs/storage.conf 
+ /usr/local/nginx/sbin/nginx  -c /usr/local/nginx/conf/nginx.conf 
+ ps -ef | grep tracker 
+ ps -ef | grep storage 
+ ps -ef | grep nginx 
+ 
  
  firewall-cmd --state
  systemctl stop firewalld.service
  systemctl disable firewalld.service 
  
- ./rabbitmq-server -detached
+ /usr/local/apps/rabbitMqHome/rabbitmq_server-3.6.15/sbin/rabbitmq-server -detached
  
- /usr/sbin/mysqld --daemonize --user=root --pid-file=/var/run/mysqld/mysqld.pid
  
-
+/home/nginxHome/nginxInstall/sbin/nginx -c /home/nginxHome/nginxInstall/conf/nginx.conf 
+ps -ef | grep nginx
+/home/tomcatHome/nw_pro/tomcat_file_server/bin/startup.sh
+ ps -ef | grep file_server
+ 
+ 
+ /usr/local/apps/nw_pro/tomcat_oms_back/bin/startup.sh
+ /usr/local/apps/nw_pro/tomcat_user_center/bin/startup.sh
+ 
 
 
 
