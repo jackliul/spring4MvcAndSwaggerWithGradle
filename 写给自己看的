@@ -193,14 +193,33 @@ find . -type f -size +800M  -print0 | xargs -0 du -h
 find . -type f -size +800M  -print0 | xargs -0 du -h | sort -nr | head -20 
 
 
+31
 /usr/sbin/mysqld --daemonize --user=root --pid-file=/var/run/mysqld/mysqld.pid --socket=/var/mysql/mysql.sock
+32
+/usr/local/bin/redis-server 127.0.0.1:6379
+/usr/local/bin/redis-cli -p 6379 -a 'na#12%78P' script load "$(cat /usr/local/apps/customScripts/redis-script-node1.lua)"
+33
+/home/nginxHome/nginxInstall/sbin/nginx -c /home/nginxHome/nginxInstall/conf/nginx.conf 
+/home/tomcatHome/nw_pro/tomcat_file_server/bin/startup.sh 
+34
+/usr/local/apps/nw_pro/tomcat_oms_back/bin/startup.sh
+/usr/local/apps/nw_pro/tomcat_user_center/bin/startup.sh
+/usr/local/apps/elk/elasticsearch-6.5.4/bin/elasticsearch -d
+
+35
+/usr/local/apps/rabbitMqHome/rabbitmq_server-3.6.15/sbin/rabbitmq-server -detached
+36 
+/usr/bin/fdfs_trackerd /etc/fdfs/tracker.conf 
+/usr/bin/fdfs_storaged /etc/fdfs/storage.conf 
+/usr/local/nginx/sbin/nginx  -c /usr/local/nginx/conf/nginx.conf 
+37
+/usr/local/apps/jenkinsHome/tomcat_jenkins/bin/startup.sh
+
 
 安装fastDfs 注意版本对应
 https://www.cnblogs.com/hafiz/p/6893022.html
 
-/usr/bin/fdfs_trackerd /etc/fdfs/tracker.conf 
- /usr/bin/fdfs_storaged /etc/fdfs/storage.conf 
- /usr/local/nginx/sbin/nginx  -c /usr/local/nginx/conf/nginx.conf 
+
  ps -ef | grep tracker 
  ps -ef | grep storage 
  ps -ef | grep nginx 
@@ -209,11 +228,16 @@ https://www.cnblogs.com/hafiz/p/6893022.html
  firewall-cmd --state
  systemctl stop firewalld.service
  systemctl disable firewalld.service 
+
+34
+https://blog.csdn.net/bbwangj/article/details/80600698
+chown -R elasticsearch:elasticsearch /usr/local/apps/elk/elasticsearch-6.5.4
+/usr/local/apps/elk/elasticsearch-6.5.4/bin/elasticsearch -d
+
+
  
- /usr/local/apps/rabbitMqHome/rabbitmq_server-3.6.15/sbin/rabbitmq-server -detached
  
- 
-/home/nginxHome/nginxInstall/sbin/nginx -c /home/nginxHome/nginxInstall/conf/nginx.conf 
+
 ps -ef | grep nginx
 /home/tomcatHome/nw_pro/tomcat_file_server/bin/startup.sh
  ps -ef | grep file_server
@@ -221,7 +245,6 @@ ps -ef | grep nginx
  
  /usr/local/apps/nw_pro/tomcat_oms_back/bin/startup.sh
  /usr/local/apps/nw_pro/tomcat_user_center/bin/startup.sh
- 
 
 
 
