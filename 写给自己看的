@@ -248,3 +248,11 @@ ps -ef | grep nginx
 
 
 
+rabbitmqctl add_vhost omsWeb
+rabbitmqctl add_vhost platformOutsideInterfaces
+
+rabbitmqctl delete_vhost omsWeb
+rabbitmqctl delete_vhost platformOutsideInterfaces
+
+rabbitmqctl set_permissions -p omsWeb admin '.*' '.*' '.*'    
+rabbitmqctl set_permissions  -p platformOutsideInterfaces admin '.*' '.*' '.*'    
