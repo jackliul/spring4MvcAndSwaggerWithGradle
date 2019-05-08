@@ -193,6 +193,17 @@ find . -type f -size +800M  -print0 | xargs -0 du -h
 find . -type f -size +800M  -print0 | xargs -0 du -h | sort -nr | head -20 
 
 
+
+
+rockmq搭建
+https://www.linuxidc.com/Linux/2015-10/124112.htm
+
+https://blog.csdn.net/xxzblog/article/details/78574796
+
+
+
+
+
 31
 /usr/sbin/mysqld --daemonize --user=root --pid-file=/var/run/mysqld/mysqld.pid --socket=/var/mysql/mysql.sock
 32
@@ -201,6 +212,8 @@ find . -type f -size +800M  -print0 | xargs -0 du -h | sort -nr | head -20
 33
 /home/nginxHome/nginxInstall/sbin/nginx -c /home/nginxHome/nginxInstall/conf/nginx.conf 
 /home/tomcatHome/nw_pro/tomcat_file_server/bin/startup.sh 
+nohup ./natapp -authtoken=5baed470232d6c77 -log=stdout -loglevel=ERROR &
+
 34
 /usr/local/apps/nw_pro/tomcat_oms_back/bin/startup.sh
 /usr/local/apps/nw_pro/tomcat_user_center/bin/startup.sh
