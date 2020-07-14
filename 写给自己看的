@@ -196,13 +196,19 @@ find . -type f -size +800M  -print0 | xargs -0 du -h | sort -nr | head -20
 
 
 rockmq搭建
+集群 未成功
 https://www.linuxidc.com/Linux/2015-10/124112.htm
-
 https://blog.csdn.net/xxzblog/article/details/78574796
+单机
+mvn clean package -Dmaven.test.skip=true
+nohup java -jar /usr/local/apps/rocketMqHome/rocketmq-console-ng-1.0.1.jar &
+https://blog.csdn.net/zhwyj1019/article/details/80264698
 
+nohup sh /usr/local/apps/rocketMqHome/rocketmq/bin/mqnamesrv &
+tail -200f /root/logs/rocketmqlogs/namesrv.log
 
-
-
+nohup sh /usr/local/apps/rocketMqHome/rocketmq/bin/mqbroker -n 192.168.8.32:9876 autoCreateTopicEnable=true -c /usr/local/apps/rocketMqHome/rocketmq/conf/broker.conf &
+tail -200f /root/logs/rocketmqlogs/broker.log
 
 31
 /usr/sbin/mysqld --daemonize --user=root --pid-file=/var/run/mysqld/mysqld.pid --socket=/var/mysql/mysql.sock

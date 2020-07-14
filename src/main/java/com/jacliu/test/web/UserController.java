@@ -3,7 +3,6 @@ package com.jacliu.test.web;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 import org.slf4j.Logger;
@@ -68,11 +67,11 @@ public class UserController {
 	@ApiOperation(value = "listUsers", httpMethod = "GET", notes = "查找用户列表")
 	@RequestMapping(value = "/user/listUsers", method = RequestMethod.GET)
 	@ResponseBody
-	public List<User> listUsers(HttpServletRequest req) {
+	public List<User> listUsers() {
 
-		String header = req.getHeader("x-access-token");
+		/*String header = req.getHeader("x-access-token");
 
-		logger.info("header " + header);
+		logger.info("header " + header);*/
 		List<User> users = new ArrayList<User>();
 		User user01 = new User(100L, "name 1", "pwd 1", "email 1", "telephone 1", "address 1");
 		User user02 = new User(100L, "name 2", "pwd 1", "email 1", "telephone 1", "address 1");

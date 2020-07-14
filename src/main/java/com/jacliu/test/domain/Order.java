@@ -3,16 +3,26 @@ package com.jacliu.test.domain;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
-@ApiModel(description = "¶©µ¥ÊµÌå")
-public class Order {  
+import java.util.List;
+
+@ApiModel(description = "ï¿½ï¿½ï¿½ï¿½Êµï¿½ï¿½")
+public class Order {
     /**
-	 * ¶©µ¥±êÊ¶
-	 */  
-	@ApiModelProperty(required = true, value = "¶©µ¥±êÊ¶")
+	 * ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê¶
+	 */
+	@ApiModelProperty(required = true, value = "ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê¶")
 	private Long orderCode;
 
-	@ApiModelProperty(required = true, value = "¶©µ¥ÓÃ»§")
+	@ApiModelProperty(required = true, value = "ï¿½ï¿½ï¿½ï¿½ï¿½Ã»ï¿½")
 	private String orderUser;
+
+	private User user;
+
+	private List<User> users;
+
+	public Order() {
+		super();
+	}
 
 	public Order(Long orderCode, String orderUser) {
 		super();
@@ -36,4 +46,19 @@ public class Order {
 		this.orderUser = orderUser;
 	}
 
-}  
+	public User getUser() {
+		return user;
+	}
+
+	public void setUser(User user) {
+		this.user = user;
+	}
+
+	public List<User> getUsers() {
+		return users;
+	}
+
+	public void setUsers(List<User> users) {
+		this.users = users;
+	}
+}

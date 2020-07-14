@@ -1,8 +1,8 @@
 apply plugin: 'java'
 apply plugin: 'war'
 apply plugin: 'maven'
-apply plugin: 'org.akhikhl.gretty'
-apply plugin: 'org.hidetake.ssh'
+//apply plugin: 'org.akhikhl.gretty'
+//apply plugin: 'org.hidetake.ssh'
 // apply from: rootProject.getRootDir().getAbsolutePath() + "/utils.gradle"
 
 // https://docs.gradle.org/current/javadoc/org/gradle/api/Project.html
@@ -18,43 +18,44 @@ apply plugin: 'org.hidetake.ssh'
 // 腾达：：： 47.89.10.238   FararFDe999()
 // 192.168.8.33 ItVm905-3
 
-import org.apache.tools.ant.filters.ReplaceTokens
+//import org.apache.tools.ant.filters.ReplaceTokens
 group 'com.jacliu.test'
 version '1.0-SNAPSHOT'
 sourceCompatibility = 1.8
 ext{
     env = System.getProperty("env") ?: "dev"
-    realHost = System.getProperty("realHost") ?: '192.168.8.114'  
-    realUser = System.getProperty("realUser") ?:'root'  
-    realPassword = System.getProperty("realPassword") ?:'12345678' 
+    realHost = System.getProperty("realHost") ?: '192.168.8.114'
+    realUser = System.getProperty("realUser") ?:'root'
+    realPassword = System.getProperty("realPassword") ?:'12345678'
     archiveName = System.getProperty("archiveName") ?:'spring4MvcAndSwaggerWithGradle'
-    toUploadDir = System.getProperty("toUploadDir") ?:'D:/deploy-softwares/' 
+    toUploadDir = System.getProperty("toUploadDir") ?:'D:/deploy-softwares/'
     cmd = System.getProperty("cmd") ?:'openBrowser.bat ' + realHost
     delZipCmd = System.getProperty("delZipCmd") ?:'delZip.bat ' + realHost
 }
 tasks.withType(JavaCompile) {
 	options.encoding = "UTF-8"
 }
-buildscript {  
-  repositories {  
-  	//jcenter()  
+buildscript {
+  repositories {
+  	//jcenter()
   	mavenCentral()
-    maven {  
+    maven {
       url "http://maven.aliyun.com/nexus/content/groups/public/"
-    }  
-  } 
-  dependencies {  
-    classpath "gradle.plugin.org.akhikhl.gretty:gretty:2.0.0" 
+    }
+  }
+  dependencies {
+   // classpath "gradle.plugin.org.akhikhl.gretty:gretty:2.0.0"
     classpath 'org.hidetake:gradle-ssh-plugin:2.9.0'
     classpath 'org.codehaus.groovy:groovy-backports-compat23:2.4.6'
-  }  
-}  
+  }
+}
 repositories {
     mavenLocal()
     mavenCentral()
 }
 dependencies {
 	providedRuntime 'javax.servlet:jstl:1.2'
+	compile 'javax.servlet:jstl:1.2'
 	compile 'ch.qos.logback:logback-classic:1.1.3'
 	compile 'org.springframework:spring-webmvc:4.1.6.RELEASE'
 	compile 'org.apache.ant:ant:1.9.5'
@@ -63,29 +64,34 @@ dependencies {
 	compile 'io.springfox:springfox-swagger2:2.6.1'
 	compile 'io.springfox:springfox-swagger-ui:2.6.1'
 	compile 'com.drore.cloud:swagger-bootstrap-ui:1.4'
-	compile 'com.fasterxml.jackson.core:jackson-core:2.5.1' 
+	compile 'com.fasterxml.jackson.core:jackson-core:2.5.1'
 	compile 'com.fasterxml.jackson.core:jackson-databind:2.5.1'
 	compile 'com.fasterxml.jackson.core:jackson-annotations:2.5.1'
-	
+
 	// https://mvnrepository.com/artifact/javax.servlet.jsp.jstl/jstl
 	//compile group: 'javax.servlet.jsp.jstl', name: 'jstl', version: '1.2'
-	
+
 	// https://mvnrepository.com/artifact/javax.el/javax.el-api
 	compile group: 'javax.el', name: 'javax.el-api', version: '3.0.0'
-	
+
 	// https://mvnrepository.com/artifact/javax.el/javax.el-api
 	compile group: 'javax.el', name: 'javax.el-api', version: '3.0.0'
-	
-	
+
+
 	// https://mvnrepository.com/artifact/org.hibernate.validator/hibernate-validator
-	compile group: 'org.hibernate.validator', name: 'hibernate-validator', version: '6.0.8.Final'   
+	compile group: 'org.hibernate.validator', name: 'hibernate-validator', version: '6.0.8.Final'
+	compile 'cn.hutool:hutool-all:5.2.3'
+//	compile group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.12'
+	// https://mvnrepository.com/artifact/org.apache.httpcomponents/httpclient
+	compile group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.6'
+
 }
-	
+
 sourceSets {
     main {
-       java {  
+       java {
             srcDirs "src/main/java"
-        }  
+        }
         resources {
             srcDirs = ["src/main/resources"]
         }
@@ -93,34 +99,34 @@ sourceSets {
 }
 
 // 动态替换文件并打war包	gradle -Denv=pro build appRunDebug
-def loadConfiguration() {
+/*def loadConfiguration() {
     def configFile = file('config.groovy') // 配置文件
     return new ConfigSlurper(env).parse(configFile.toURI().toURL()).toProperties()
-}
-processResources {
+}*/
+/*processResources {
     from(sourceSets.main.resources.srcDirs) {
         // filter(ReplaceTokens, tokens: loadConfiguration())
         filter(ReplaceTokens, tokens: loadConfiguration(), beginToken : '${', endToken : '}')
     }
-}
-war{  
+}*/
+war{
     webInf { from 'build/resources/main' }
     archiveName 'spring4MvcAndSwaggerWithGradle.war'
-}  
-
-// 远程上传到服务器上
-ssh.settings {  
-  knownHosts = allowAnyHosts  
 }
 
-remotes {  
-  	deployServer {  
+// 远程上传到服务器上
+/*ssh.settings {
+  knownHosts = allowAnyHosts
+}*/
+/*
+remotes {
+  	deployServer {
 	    role 'masterNode'
-	    host = realHost  
-	    user = realUser  
-	    password = realPassword  
+	    host = realHost
+	    user = realUser
+	    password = realPassword
   }
-}  
+}*/
 
 def toUploadFile = {String suf ->
 	toUploadDir + suf
@@ -128,7 +134,7 @@ def toUploadFile = {String suf ->
 
 task installTools() << {
 	ssh.run {
-		    session(remotes.deployServer) { 
+		    session(remotes.deployServer) {
 			executeScript '''
 					#!/bin/sh
 					//yum -y install vim
@@ -139,19 +145,19 @@ task installTools() << {
 		            yum -y install glibc-devel ncurses-devel xmlto
 	                yum -y install tcl
 	                yum -y install pcre*  
-	           '''  
+	           '''
 	        }
        }
 }
 
 task installJdk(dependsOn: installTools) << {
-	ssh.run {  
-	    session(remotes.deployServer) { 
+	ssh.run {
+	    session(remotes.deployServer) {
 	         executeScript '''
       					#!/bin/sh  
                         rm -rf /home/jdkHome
                         mkdir /home/jdkHome
-                    '''  
+                    '''
 		      put from: toUploadDir+"jdk-8u161-linux-x64.tar.gz", into: "/home/jdkHome"
 		      executeScript '''
 		      			#!/bin/sh
@@ -170,13 +176,13 @@ task installJdk(dependsOn: installTools) << {
 	}
 }
 task installTomcat(dependsOn: installJdk) << {
-	ssh.run {  
-	    session(remotes.deployServer) { 
+	ssh.run {
+	    session(remotes.deployServer) {
 	         executeScript '''
       					#!/bin/sh  
                         rm -rf /home/tomcatHome
                         mkdir /home/tomcatHome
-                    '''  
+                    '''
 		      put from: toUploadFile("apache-tomcat-8.5.29.tar.gz"), into: "/home/tomcatHome"
 		      executeScript '''
 		      			#!/bin/sh
@@ -199,14 +205,14 @@ task installTomcat(dependsOn: installJdk) << {
 	}
 }
 task installJenkins(dependsOn: installTomcat) << {
-	ssh.run {  
-	    session(remotes.deployServer) { 
+	ssh.run {
+	    session(remotes.deployServer) {
 	         executeScript '''
       					#!/bin/sh  
                         rm -rf /home/jenkinsHome
                         mkdir /home/jenkinsHome
                         # // wget -P /home/jenkinsHome http://mirrors.jenkins.io/war-stable/latest/jenkins.war
-                    '''  
+                    '''
             put from: toUploadFile("jenkins.war"), into: "/home/jenkinsHome"
             executeScript '''
       					#!/bin/sh  
@@ -220,14 +226,14 @@ task installJenkins(dependsOn: installTomcat) << {
 // 安装mysql https://blog.csdn.net/dearfinance/article/details/79494475
 // https://blog.imdst.com/mysql-5-6-pei-zhi-you-hua/
 // /usr/bin/mysql_install_db --force
-// 【fardar的】启动：：  /usr/bin/mysqld_safe --defaults-file=/etc/my.cnf --user=root & 
+// 【fardar的】启动：：  /usr/bin/mysqld_safe --defaults-file=/etc/my.cnf --user=root &
 // 【fardar的】关闭：： /usr/bin/mysqladmin shutdown -u root -p &
-// 有问题，修改密码：： /usr/bin/mysqladmin -u root -p '123@QWErty' 
+// 有问题，修改密码：： /usr/bin/mysqladmin -u root -p '123@QWErty'
 // GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' identified by '123@QWErty'  WITH GRANT OPTION;
-// 
+//
 task installMysql() << {
-	ssh.run {  
-	    session(remotes.deployServer) { 
+	ssh.run {
+	    session(remotes.deployServer) {
 			 executeScript '''
       					#!/bin/sh  
                         yum -y install autoconf gcc gcc-c++ cmake ncurses-devel bison &&
@@ -267,8 +273,8 @@ task installMysql() << {
 // gradle clean installRabbitMq -DrealHost='192.168.8.34' -DrealPassword='ItVm905-4'
 // 								-DrealHost='47.89.10.238' -DrealPassword='FararFDe999()'
 task installRabbitMq() << {
-	ssh.run {  
-		    session(remotes.deployServer) { 
+	ssh.run {
+		    session(remotes.deployServer) {
 		         executeScript '''
 	      					#!/bin/sh
 	      					rm -rf /home/rabbitMqHome &&
@@ -297,10 +303,10 @@ task installRabbitMq() << {
 }
 
 // https://www.cnblogs.com/yinz/p/7065146.html dependsOn: installJenkins
-// 
+//
 task installRedis() << {
-	ssh.run {  
-		    session(remotes.deployServer) { 
+	ssh.run {
+		    session(remotes.deployServer) {
 	        executeScript '''
 	  				#!/bin/sh
 	  				rm -rf /home/redisHome
@@ -324,8 +330,8 @@ task installRedis() << {
 }
 
 task installNginx(dependsOn: installRedis) << {
-	ssh.run {  
-		    session(remotes.deployServer) { 
+	ssh.run {
+		    session(remotes.deployServer) {
 	        executeScript '''
 	  				#!/bin/sh
 	  				rm -rf /home/nginxHome
@@ -346,8 +352,8 @@ task installNginx(dependsOn: installRedis) << {
 	}
 }
 task closeThefire(dependsOn: installNginx) << {
-	ssh.run {  
-	    session(remotes.deployServer) { 
+	ssh.run {
+	    session(remotes.deployServer) {
 	         executeScript '''
       					#!/bin/sh  
                         iptables -A INPUT -p tcp --dport 80 -j ACCEPT
@@ -356,14 +362,14 @@ task closeThefire(dependsOn: installNginx) << {
                         firewall-cmd --list-ports
                         firewall-cmd --zone=public --add-port=80/tcp --permanent
                         firewall-cmd --reload                        
-                    '''  
-	    } 
+                    '''
+	    }
 	}
 }
 // dependsOn: closeThefire
 task initEnv()<<{
-	ssh.run {  
-	    session(remotes.deployServer) { 
+	ssh.run {
+	    session(remotes.deployServer) {
 	         executeScript '''
       					#!/bin/sh
       					chmod 777 /home/tomcatHome/tomcat8/bin/startup.sh /home/tomcatHome/tomcat8/bin/shutdown.sh   
@@ -373,21 +379,21 @@ task initEnv()<<{
   						cat /etc/profile
   						echo $JAVA_HOME 
   						echo $JRE_HOME
-                    '''  
+                    '''
 	    }
 	}
 	println "恭喜您 jdk tomcat8 rabbitmq redis nginx jenkins 初始化已完成，接下来请您完成各自的定自化!"
 }
 
-task deploy(dependsOn: war) << { 
-  ssh.run {  
-    session(remotes.deployServer) {  
+task deploy(dependsOn: war) << {
+  ssh.run {
+    session(remotes.deployServer) {
         execute '/home/tomcatHome/tomcat8/bin/shutdown.sh'
     	remove '/home/tomcatHome/tomcat8/webapps/'+archiveName,'/home/tomcatHome/tomcat8/webapps/'+archiveName+'.war'
 		put from: buildDir.toString() + '/libs/'+archiveName+'.war', into: '/home/tomcatHome/tomcat8/webapps'
-		execute '/home/tomcatHome/tomcat8/bin/startup.sh'  
-    }  
-  }  
+		execute '/home/tomcatHome/tomcat8/bin/startup.sh'
+    }
+  }
 }
 
 task openBrowser(dependsOn: deploy) << {
@@ -395,13 +401,13 @@ task openBrowser(dependsOn: deploy) << {
 }
 
 def pullUserCenterBat = 'pullUserCenter.bat'
-task pullUserCenter() << { 
+task pullUserCenter() << {
 	def cmdResult = pullUserCenterBat.execute().text.trim()
 }
-//  cd /cygdrive/d/gitPro/pros/user-center && gradle build -Denv=pro && cd /cygdrive/d/openCodes/spring4MvcAndSwaggerWithGradle && gradle clean deployUserCenter 
-task deployUserCenter() << { 
-  ssh.run {  
-    session(remotes.deployServer) {  
+//  cd /cygdrive/d/gitPro/pros/user-center && gradle build -Denv=pro && cd /cygdrive/d/openCodes/spring4MvcAndSwaggerWithGradle && gradle clean deployUserCenter
+task deployUserCenter() << {
+  ssh.run {
+    session(remotes.deployServer) {
         /* executeScript '''
       						#!/bin/sh
       						# kill -9 ` cat /home/tomcatHome/tomcat_user_center/tomcat_user_center.pid `
@@ -410,45 +416,45 @@ task deployUserCenter() << {
         execute ' kill -9 `cat /home/tomcatHome/tomcat_user_center/tomcat_user_center.pid` '
     	remove '/home/tomcatHome/tomcat_user_center/webapps/user-center','/home/tomcatHome/tomcat_user_center/webapps/user-center.war'
 		put from: 'D:/gitPro/pros/user-center/build/libs/user-center.war', into: '/home/tomcatHome/tomcat_user_center/webapps'
-		execute '/home/tomcatHome/tomcat_user_center/bin/startup.sh'  
-    }  
-  }  
+		execute '/home/tomcatHome/tomcat_user_center/bin/startup.sh'
+    }
+  }
 }
 // cd /cygdrive/d/gitPro/pros/oms-back/oms-web  && gradle build -Denv=pro && cd /cygdrive/d/openCodes/spring4MvcAndSwaggerWithGradle && gradle clean deployOmsBack
-task deployOmsBack() << { 
-  ssh.run {  
-    session(remotes.deployServer) {  
+task deployOmsBack() << {
+  ssh.run {
+    session(remotes.deployServer) {
         execute ' kill -9 `cat /home/tomcatHome/tomcat_oms_back/tomcat_oms_back.pid` '
     	remove '/home/tomcatHome/tomcat_oms_back/webapps/oms-web.war','/home/tomcatHome/tomcat_oms_back/webapps/oms-web.war'
 		put from: 'D:/gitPro/pros/oms-back/oms-web/build/libs/oms-web.war', into: '/home/tomcatHome/tomcat_oms_back/webapps'
-		execute '/home/tomcatHome/tomcat_oms_back/bin/startup.sh'  
-    }  
-  }  
+		execute '/home/tomcatHome/tomcat_oms_back/bin/startup.sh'
+    }
+  }
 }
 
 // sh /cygdrive/d/openCodes/spring4MvcAndSwaggerWithGradle/deployPro.sh
 // cd /cygdrive/d/gitPro/pros/oms-front_v && sed -i 's/localhost/47.106.123.189/g' config/index.js && npm install && npm run build && zip -r dist.zip dist && cd /cygdrive/d/openCodes/spring4MvcAndSwaggerWithGradle && gradle clean deployOmsFrontV
 // cd /cygdrive/d/gitPro/pros/oms-front_v && sed -i 's/localhost/47.106.123.189/g' config/index.js && npm install && npm run build
 // cd /cygdrive/d/openCodes/spring4MvcAndSwaggerWithGradle && gradle clean deployOmsFrontV
-task deployOmsFrontV() << { 
-  ssh.run {  
-       session(remotes.deployServer) {  
+task deployOmsFrontV() << {
+  ssh.run {
+       session(remotes.deployServer) {
     				executeScript '''
         				#!/bin/sh
       					rm -rf /home/nginxHome/nginxInstall/html/index.html /home/nginxHome/nginxInstall/html/static /home/nginxHome/nginxInstall/html/dist.zip
-                    '''  
-         put from: 'D:/gitPro/pros/oms-front_v/dist/index.html', into: '/home/nginxHome/nginxInstall/html/' 
-         put from: 'D:/gitPro/pros/oms-front_v/dist/static', into: '/home/nginxHome/nginxInstall/html/' 
+                    '''
+         put from: 'D:/gitPro/pros/oms-front_v/dist/index.html', into: '/home/nginxHome/nginxInstall/html/'
+         put from: 'D:/gitPro/pros/oms-front_v/dist/static', into: '/home/nginxHome/nginxInstall/html/'
        /* executeScript '''
       					#!/bin/sh
       					unzip -d /home/nginxHome/nginxInstall/html/ /home/nginxHome/nginxInstall/html/dist.zip
-      					cd /home/nginxHome/nginxInstall/html/ && mv dist/** . 
-						rm -rf /home/nginxHome/nginxInstall/html/dist 
-						rm -rf /home/nginxHome/nginxInstall/html/dist.zip						 
+      					cd /home/nginxHome/nginxInstall/html/ && mv dist/** .
+						rm -rf /home/nginxHome/nginxInstall/html/dist
+						rm -rf /home/nginxHome/nginxInstall/html/dist.zip
                     '''
                     */
-    }  
-  }  
+    }
+  }
 }
 
 task deployFileServer() << {
@@ -462,48 +468,48 @@ task deployFileServer() << {
     }
 }
 
-task delFrontZip(dependsOn: deployOmsFrontV) << { 
+task delFrontZip(dependsOn: deployOmsFrontV) << {
   def cmdResult = delZipCmd.execute().text.trim()
 }
 
-task testRemote() << { 
-  ssh.run {  
-    session(remotes.deployServer) { 
-    
+task testRemote() << {
+  ssh.run {
+    session(remotes.deployServer) {
+
     remove '/home/test1'
     execute ' ls /home/tomcatHome/tomcat_user_center/tomcat_user_center.pid '
      execute ' kill -9 `cat /home/tomcatHome/tomcat_oms_back/tomcat_oms_back.pid` '
-     
-     execute '/home/tomcatHome/tomcat_oms_back/bin/startup.sh'  
-     
+
+     execute '/home/tomcatHome/tomcat_oms_back/bin/startup.sh'
+
     	//executeScript '''
       			//		#!/bin/sh
-						//cat /home/tomcatHome/tomcat_oms_back/tomcat_oms_back.pid && 
+						//cat /home/tomcatHome/tomcat_oms_back/tomcat_oms_back.pid &&
 						//echo 'xxxxx,,,x,,x,,,x,x,x' &&
 						//ps -ef | grep tomcat &&
-						
-				//		rm -rf /home/test1 
+
+				//		rm -rf /home/test1
 						// echo "ok la la ," &&
-						//ll /home/tomcatHome/tomcat_user_center/tomcat_user_center.pid && 
+						//ll /home/tomcatHome/tomcat_user_center/tomcat_user_center.pid &&
 						//chmod +755 /home/tomcatHome/tomcat_user_center/tomcat_user_center.pid &&
 						//ll /home/tomcatHome/tomcat_user_center/tomcat_user_center.pid
                //     '''
        // execute ' kill -9 `cat /home/tomcatHome/tomcat_oms_back/tomcat_oms_back.pid` '
     	//remove '/home/tomcatHome/tomcat_oms_back/webapps/oms-web.war','/home/tomcatHome/tomcat_oms_back/webapps/oms-web.war'
 		//put from: 'D:/gitPro/pros/oms-back/oms-web/build/libs/oms-web.war', into: '/home/tomcatHome/tomcat_oms_back/webapps'
-		//execute '/home/tomcatHome/tomcat_oms_back/bin/startup.sh'  
-    }  
-  }  
+		//execute '/home/tomcatHome/tomcat_oms_back/bin/startup.sh'
+    }
+  }
 }
 
-gretty {
+/*gretty {
     httpPort = 8089
 	managedClassReload = true
 	reloadOnConfigChange = true
     contextPath = '/'
-}
-	
-// 扩展上传到maven的插件	
+}*/
+
+// 扩展上传到maven的插件
 uploadArchives {
 	repositories.mavenDeployer {
 	    repository(url: "http://localhost:8088/nexus/content/repositories/snapshots/") {

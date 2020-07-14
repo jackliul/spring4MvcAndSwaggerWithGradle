@@ -1,0 +1,26 @@
+axure  自定义基础工具
+操作描述：
+1、随便选择一个图形A
+2、点击图形A
+3、鼠标移动到图形A的边线上，改变为小指针时（在指针尾部有一个小黑点状态）
+4、双击鼠标左键
+5、图形A的边框锚点由正方形变成了菱形
+6、这时候就可以直接在边线上单击左键，添加一个菱形，可变动锚点改变形状了，右击可以选删除和曲线。
+
+操作描述：
+1、选择，视图->工具->自定义基础工具
+2、插入对象，选择绘画。
+3、直接使用钢笔画图。
+
+github查找技艺
+in:name Text stars:>3000
+
+in:name Text stars:>3000 forks:>600
+
+in:name Text stars:>3000 forks:>600 language:python
+
+in:readme Text stars:>3000 forks:>600 language:python
+
+in:description stars:>3000 轮播 language:iOS
+
+in:description 微服务 language:python pushed:>2020-02-05
